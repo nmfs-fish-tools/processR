@@ -230,15 +230,6 @@ public:
   
 };
 
-// void message_collector(Process& p)
-// {
-//   std::string line;
-//   while (p.child_output && std::getline(p.child_output, line) && !line.empty()) {
-//     p.message << line << std::endl;
-//   }
-// }
-
-
 // [[Rcpp::export]]
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
   
