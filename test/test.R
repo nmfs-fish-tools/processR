@@ -23,11 +23,8 @@ test <- function() {
 }
 
 ee <- environment()
-
-
 pool <- list()
 for (i in 1:10) {
-  ee <- environment()
   print(i)
   rank <- i
   pool[[i]] <- new(p$Process)
