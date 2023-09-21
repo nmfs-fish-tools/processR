@@ -209,6 +209,7 @@ public:
   }
   
   void terminate() {
+    this->collect();
     this->child_m->terminate();
   }
   
@@ -306,10 +307,10 @@ RCPP_EXPOSED_CLASS(Process)
     .field("rank", &Process::rank);
   }
 
-// [[Rcpp::export]]
-Process CreateProcess(){
-  return Process();
-}
+// // [[Rcpp::export]]
+//Process CreateProcess(){
+//  return Process();
+//}
 
 
 /**
