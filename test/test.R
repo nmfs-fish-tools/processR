@@ -12,7 +12,7 @@ v <- 10
 
 
 test <- function() {
-  for (i in 1:2000000000) {
+  for (i in 1:200000000) {
     v <- v + 1
   }
   
