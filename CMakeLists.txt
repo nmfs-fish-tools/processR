@@ -29,17 +29,18 @@ SET(R_INCLUDE ${R_HOME}/include)
 include_directories("${R_INCLUDE}")
 
 SET(R_LIB ${R_HOME}/lib)
-link_directories(${R_LIB})
+  find_library(_R_LIBRARY R
+            HINTS ${R_HOME}/lib
+            DOC "R library (example libR.a, libR.dylib, etc.).")
 
 #set RInside home
 SET(RINSIDE_HOME ${R_USER}/RInside)
-
 MESSAGE(STATUS "RINSIDE_HOME is ${RINSIDE_HOME}")
 
 #set RInside home
 SET(RINSIDE_INCLUDE ${RINSIDE_HOME}/include)
 
-#link_directories(${RINSIDE_HOME}/libs)
+
 find_library(_LIB_RINSIDE
 	NAMES RInside.so
 	PATHS ${RINSIDE_HOME}/libs
@@ -51,7 +52,6 @@ find_library(_LIB_RINSIDE
 SET(RCPP_HOME ${R_HOME}/library/Rcpp)
 
 SET(RCPP_INCLUDE ${RCPP_HOME}/include)
-#link_directories(${R_HOME}/library/Rcpp/libs)
 find_library(_LIB_RCPP
 	NAMES Rcpp.so
 	PATHS ${RCPP_HOME}/libs
@@ -85,14 +85,24 @@ include(GenerateExportHeader)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}") 
 
 add_library(processR SHARED src/processR.cpp)
-add_executable(rchild src/rchild.cpp )
 generate_export_header(processR)
+
+add_executable(rchild src/rchild.cpp )
+
+
+
+
+
+target_link_libraries(processR ${_R_LIBRARY})
+target_link_libraries(processR ${_LIB_RCPP})
+
+target_link_libraries(rchild ${_R_LIBRARY})
+target_link_libraries(rchild ${_LIB_RCPP})
+target_link_libraries(rchild ${_LIB_RINSIDE})
 
 
 install(TARGETS processR DESTINATION lib)
 install(TARGETS rchild DESTINATION inst/bin)
 
-target_link_libraries(processR R)
-target_link_libraries(rchild R)
-target_link_libraries(rchild ${_LIB_RINSIDE})
-target_link_libraries(rchild ${_LIB_RCPP})
+
+
