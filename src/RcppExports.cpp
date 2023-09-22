@@ -32,13 +32,13 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// CreateProcess
-Process CreateProcess();
-RcppExport SEXP _processR_CreateProcess() {
+// HardwareConcurency
+size_t HardwareConcurency();
+RcppExport SEXP _processR_HardwareConcurency() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(CreateProcess());
+    rcpp_result_gen = Rcpp::wrap(HardwareConcurency());
     return rcpp_result_gen;
 END_RCPP
 }
@@ -59,7 +59,7 @@ RcppExport SEXP _rcpp_module_boot_processR();
 static const R_CallMethodDef CallEntries[] = {
     {"_processR_copyEnvironment", (DL_FUNC) &_processR_copyEnvironment, 1},
     {"_processR_RunProcess", (DL_FUNC) &_processR_RunProcess, 2},
-    {"_processR_CreateProcess", (DL_FUNC) &_processR_CreateProcess, 0},
+    {"_processR_HardwareConcurency", (DL_FUNC) &_processR_HardwareConcurency, 0},
     {"_processR_CreateProcessPool", (DL_FUNC) &_processR_CreateProcessPool, 1},
     {"_rcpp_module_boot_processR", (DL_FUNC) &_rcpp_module_boot_processR, 0},
     {NULL, NULL, 0}

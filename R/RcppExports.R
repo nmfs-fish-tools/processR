@@ -9,8 +9,8 @@ RunProcess <- function(fun, env) {
     invisible(.Call(`_processR_RunProcess`, fun, env))
 }
 
-CreateProcess <- function() {
-    .Call(`_processR_CreateProcess`)
+HardwareConcurency <- function() {
+    .Call(`_processR_HardwareConcurency`)
 }
 
 CreateProcessPool <- function(size) {

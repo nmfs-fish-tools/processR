@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <thread>
 #include <Rcpp.h>
 #include <sstream>
 #include <chrono>
@@ -185,8 +186,8 @@ public:
     std::stringstream sm_name_env;
     std::stringstream sm_name_fun;
     std::time_t t = std::time(0);
-    sm_name_env << "processR_sm_env_" << t;
-    sm_name_fun << "processR_sm_fun_" << t;
+    sm_name_env << "processR_sm_env_" << t<<"_"<<rank;
+    sm_name_fun << "processR_sm_fun_" << t<<"_"<<rank;
     // std::cout << sm_name_env.str() << "\n\n";
  
     
@@ -337,6 +338,11 @@ RCPP_EXPOSED_CLASS(Process)
 /**
  * Returns a list of children.
  */
+
+//[[Rcpp::export]]
+size_t HardwareConcurency(){
+  return std::thread::hardware_concurrency();
+}
 
 // [[Rcpp::export]]
 Rcpp::List CreateProcessPool(int size) {

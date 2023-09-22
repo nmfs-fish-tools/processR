@@ -12,19 +12,19 @@ v <- 10
 
 
 test <- function() {
-  for (i in 1:200000000) {
+  for (i in 1:2000000000) {
     v <- v + 1
   }
   
   for (i in 1:2) {
-    print(paste(processR.rank, "hi from test"))
+    print(paste("rank",paste(processR.rank, " -> hi from test")))
   }
   
 }
 
 ee <- environment()
 pool <- list()
-for (i in 1:10) {
+for (i in 1:(processR::HardwareConcurency())) {
 
   ee <- environment()
   print(paste("initializing child with rank ",i))
