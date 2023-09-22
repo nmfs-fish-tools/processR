@@ -1,4 +1,4 @@
-#include <thread>
+#include <filesystem>
 #include <Rcpp.h>
 #include <sstream>
 #include <chrono>
@@ -10,6 +10,19 @@
 
 namespace bp = boost::process;
 namespace bip = boost::interprocess;
+
+
+
+std::string getRLibraryPath() {
+  Rcpp::Function SysGetenv("Sys.getenv");
+  Rcpp::CharacterVector result = SysGetenv("R_LIBS_USER");
+  if (result.size() == 1) {
+    return Rcpp::as<std::string>(result[0]);
+  } else {
+    // Handle the case where the environment variable is not found or there are multiple paths
+    return ""; // You can return an appropriate default value or handle the error as needed
+  }
+}
 
 int check(std::string ss_env_name, std::string ss_fun_name) {
   bp::ipstream parent_input;
@@ -158,8 +171,16 @@ public:
     //Copy environment to shared memory
     Rcpp::Environment E = copyEnvironment(env);
     E.assign("process_rank", rank);
-    std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
+    std::string path = "";
+    std::stringstream ss_path;
     
+    ss_path<<getRLibraryPath()<<"/processR/bin";
+    if (std::filesystem::exists(ss_path.str()) && std::filesystem::is_directory(ss_path.str())) {
+      ss_path<<"/rchild";
+      path = ss_path.str();
+    } else {
+      std::cout << "Libaray directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
+    }
  
     std::stringstream sm_name_env;
     std::stringstream sm_name_fun;
@@ -241,7 +262,16 @@ public:
 // [[Rcpp::export]]
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
   
-  std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
+  std::string path = "";
+  std::stringstream ss_path;
+  
+  ss_path<<getRLibraryPath()<<"/processR/bin";
+  if (std::filesystem::exists(ss_path.str()) && std::filesystem::is_directory(ss_path.str())) {
+    ss_path<<"/rchild";
+    path = ss_path.str();
+  } else {
+    std::cout << "Libaray directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
+  }
   
   
   std::stringstream sm_name_env;

@@ -28,7 +28,7 @@ ee <- environment()
 pool <- list()
 for (i in 1:10) {
   ee <- environment()
-  print(i)
+  print(paste("initializing child with rank ",i))
   rank <- i
   pool[[i]] <- new(p$Process)
   pool[[i]]$start(test, ee, rank)
