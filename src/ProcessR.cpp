@@ -230,6 +230,7 @@ public:
   }
   
   void terminate() {
+    this->collect();
     this->child_m->terminate();
   }
   
@@ -249,15 +250,6 @@ public:
   }
   
 };
-
-// void message_collector(Process& p)
-// {
-//   std::string line;
-//   while (p.child_output && std::getline(p.child_output, line) && !line.empty()) {
-//     p.message << line << std::endl;
-//   }
-// }
-
 
 // [[Rcpp::export]]
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
@@ -336,10 +328,10 @@ RCPP_EXPOSED_CLASS(Process)
     .field("rank", &Process::rank);
   }
 
-// [[Rcpp::export]]
-Process CreateProcess(){
-  return Process();
-}
+// // [[Rcpp::export]]
+//Process CreateProcess(){
+//  return Process();
+//}
 
 
 /**
