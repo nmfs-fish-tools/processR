@@ -1,3 +1,26 @@
+---
+title: "processR"
+author: "Matthew Supernaw"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Simple Example
+
+
+```{r, echo=TRUE, results='asis'}
 library(processR)
 library(Rcpp)
 library(RInside)
@@ -28,21 +51,26 @@ test <- function() {
 #create a pool children
 pool <- list()
 
+#fill the pool with children
 for (i in 1:processR::HardwareConcurrency()) {
+  
   #creat a new child
   pool[[i]] <- new(p$Process)
+  
   #pass the entry function, environment, and child rank
-  pool[[i]]$start(test, ee, i)
+  pool[[i]]$start(test, environment(), i)
 }
 
 
 print("waiting...")
-for (j in 1:10) {
+for (j in 1:length(pool)) {
+  
   #wait for the children to finish
   pool[[j]]$wait()
   
   #print the child output stream
-  cat(pool[[j]]$get_message())
+  pool[[j]]$print()
+  cat("\n");
   
   #get the child's environment
   env<-pool[[j]]$get_environment()
@@ -54,4 +82,8 @@ for (j in 1:10) {
 }
 
 print("done.")
+
+
+```
+
 
