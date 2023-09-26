@@ -5,12 +5,16 @@ copyEnvironment <- function(sourceEnv) {
     .Call(`_processR_copyEnvironment`, sourceEnv)
 }
 
+readEnvironmentFromSharedMemory <- function(shared_memory_name) {
+    .Call(`_processR_readEnvironmentFromSharedMemory`, shared_memory_name)
+}
+
 RunProcess <- function(fun, env) {
     invisible(.Call(`_processR_RunProcess`, fun, env))
 }
 
-HardwareConcurency <- function() {
-    .Call(`_processR_HardwareConcurency`)
+HardwareConcurrency <- function() {
+    .Call(`_processR_HardwareConcurrency`)
 }
 
 CreateProcessPool <- function(size) {

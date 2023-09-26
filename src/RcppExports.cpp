@@ -21,6 +21,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// readEnvironmentFromSharedMemory
+Rcpp::Environment readEnvironmentFromSharedMemory(const std::string& shared_memory_name);
+RcppExport SEXP _processR_readEnvironmentFromSharedMemory(SEXP shared_memory_nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type shared_memory_name(shared_memory_nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(readEnvironmentFromSharedMemory(shared_memory_name));
+    return rcpp_result_gen;
+END_RCPP
+}
 // RunProcess
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env);
 RcppExport SEXP _processR_RunProcess(SEXP funSEXP, SEXP envSEXP) {
@@ -32,13 +43,13 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// HardwareConcurency
-size_t HardwareConcurency();
-RcppExport SEXP _processR_HardwareConcurency() {
+// HardwareConcurrency
+size_t HardwareConcurrency();
+RcppExport SEXP _processR_HardwareConcurrency() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(HardwareConcurency());
+    rcpp_result_gen = Rcpp::wrap(HardwareConcurrency());
     return rcpp_result_gen;
 END_RCPP
 }
@@ -58,8 +69,9 @@ RcppExport SEXP _rcpp_module_boot_processR();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_processR_copyEnvironment", (DL_FUNC) &_processR_copyEnvironment, 1},
+    {"_processR_readEnvironmentFromSharedMemory", (DL_FUNC) &_processR_readEnvironmentFromSharedMemory, 1},
     {"_processR_RunProcess", (DL_FUNC) &_processR_RunProcess, 2},
-    {"_processR_HardwareConcurency", (DL_FUNC) &_processR_HardwareConcurency, 0},
+    {"_processR_HardwareConcurrency", (DL_FUNC) &_processR_HardwareConcurrency, 0},
     {"_processR_CreateProcessPool", (DL_FUNC) &_processR_CreateProcessPool, 1},
     {"_rcpp_module_boot_processR", (DL_FUNC) &_rcpp_module_boot_processR, 0},
     {NULL, NULL, 0}

@@ -1,7 +1,7 @@
 # find the R binary
 cmake_minimum_required (VERSION 3.0)
 
-project(processR)
+project(rchiild)
 
 MESSAGE("generating make files for ${CMAKE_PROJECT_NAME}")
 
@@ -39,24 +39,34 @@ SET(R_LIB ${R_HOME}/lib)
 
 
 
+#set RInside home
+SET(RINSIDE_HOME ${R_USER}/RInside)
+MESSAGE(STATUS "RINSIDE_HOME is ${RINSIDE_HOME}")
+SET(RINSIDE_INCLUDE ${RINSIDE_HOME}/include)
+SET(_LIB_RINSIDE ${RINSIDE_HOME}/libs/RInside.so)
+
+
+
 
 #set Rcpp home
 SET(RCPP_HOME ${R_HOME}/library/Rcpp)
 SET(RCPP_INCLUDE ${RCPP_HOME}/include)
-SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
+#SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
 
 
 
-SET(LIB_DIR ${CMAKE_INSTALL_PREFIX}/libs)
-file(MAKE_DIRECTORY ${LIB_DIR})
+SET(BIN_DIR ${CMAKE_INSTALL_PREFIX}/bin)
+file(MAKE_DIRECTORY ${BIN_DIR})
 
 MESSAGE(STATUS "RCPP_INCLUDE is ${RCPP_INCLUDE}")
 MESSAGE(STATUS "R_LIB is ${R_LIB}")
 MESSAGE(STATUS "RINSIDE_INCLUDE is ${RINSIDE_INCLUDE}")
+MESSAGE(STATUS "_LIB_RINSIDE is ${_LIB_RINSIDE}")
 MESSAGE(STATUS "_LIB_RCPP is ${_LIB_RCPP}")
 
 
-link_directories(${RCPP_HOME}/libs)
+link_directories(${RINSIDE_HOME}/libs)
+#link_directories(${RCPP_HOME}/libs)
 link_directories(${R_HOME}/lib)
 
 #find boost
@@ -67,31 +77,32 @@ include_directories( ${RINSIDE_INCLUDE} )
 include_directories( ${R_INCLUDE} )
  
 
+
+
+
 include(GenerateExportHeader)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}") 
 
-add_library(processR SHARED src/processR.cpp)
-generate_export_header(processR)
+
+add_executable(rchild rchild.cpp )
 
 
 
-target_link_libraries(processR ${_R_LIBRARY})
-target_link_libraries(processR ${_LIB_RCPP})
+
+target_link_libraries(rchild ${_R_LIBRARY})
+#target_link_libraries(rchild ${_LIB_RCPP})
+target_link_libraries(rchild ${RINSIDE_HOME}/lib/libRInside.a)
+
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+#set(CMAKE_SHARED_LINKER_FLAGS "-l${_R_LIBRARY} -L${${RCPP_HOME}/libs}")
+set(CMAKE_EXE_LINKER_FLAGS " -L${RINSIDE_HOME}/lib")
 
 
-
-set(CMAKE_SHARED_LINKER_FLAGS "-L${_R_LIBRARY} -L${_LIB_RCPP}")
-#set(CMAKE_EXE_LINKER_FLAGS "-l${_R_LIBRARY}  -L${_LIB_RCPP} -L${_LIB_RINSIDE}")
-
-install(TARGETS processR DESTINATION libs)
-
-#install(TARGETS rchild DESTINATION bin)
-
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy ${_LIB_RINSIDE} ${CMAKE_INSTALL_PREFIX}/libs)
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy ${_LIB_RCPP} ${CMAKE_INSTALL_PREFIX}/libs)
+install(TARGETS rchild DESTINATION bin)
 
 
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy ${_LIB_RINSIDE} ${CMAKE_INSTALL_PREFIX}/bin)
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy ${_LIB_RCPP} ${CMAKE_INSTALL_PREFIX}/bin)
+#EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy ${_LIB_RINSIDE} ${CMAKE_INSTALL_PREFIX}/bin)
+#EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy ${_LIB_RCPP} ${CMAKE_INSTALL_PREFIX}/bin)
 
-MESSAGE(STATUS "CMAKE_INSTALL_PREFIX is ${CMAKE_INSTALL_PREFIX}")
+#MESSAGE(STATUS "CMAKE_INSTALL_PREFIX is ${CMAKE_INSTALL_PREFIX}")

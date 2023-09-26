@@ -12,8 +12,6 @@
 namespace bp = boost::process;
 namespace bip = boost::interprocess;
 
-
-
 std::string getRLibraryPath() {
   Rcpp::Function SysGetenv("Sys.getenv");
   Rcpp::CharacterVector result = SysGetenv("R_LIBS_USER");
@@ -118,6 +116,7 @@ Rcpp::Environment copyEnvironment(const Rcpp::Environment& sourceEnv) {
 
 void writeToSharedMemory(const std::string& shared_memory_name, const Rcpp::RawVector& serialized_env) {
   try {
+    boost::interprocess::shared_memory_object::remove(shared_memory_name.c_str());
     // Create or open the shared memory segment
     boost::interprocess::shared_memory_object shm(
         boost::interprocess::open_or_create, shared_memory_name.c_str(), boost::interprocess::read_write
@@ -145,14 +144,73 @@ void writeToSharedMemory(const std::string& shared_memory_name, const Rcpp::RawV
 
 
 
+// [[Rcpp::export]]
+Rcpp::Environment readEnvironmentFromSharedMemory(const std::string& shared_memory_name) {
+  try {
+    // Open the shared memory segment
+    boost::interprocess::shared_memory_object shm(
+        boost::interprocess::open_only, shared_memory_name.c_str(), boost::interprocess::read_only
+    );
+    
+    // Map the shared memory segment into this process's address space
+    boost::interprocess::mapped_region region(shm, boost::interprocess::read_only);
+    
+    // Get a pointer to the shared memory
+    const void* shared_memory_ptr = region.get_address();
+    
+    // Deserialize the data into an R environment
+    Rcpp::RawVector serialized_env(region.get_size());
+    //        std::memcpy(serialized_env.begin(), shared_memory_ptr, region.get_size());
+    SEXP arg;
+    PROTECT(arg = Rf_allocVector(RAWSXP, region.get_size()));
+    std::memcpy(RAW(arg), shared_memory_ptr, region.get_size() * sizeof (unsigned char));
+    
+    SEXP unser;
+    PROTECT(unser = Rf_lang2(Rf_install("unserialize"), arg));
+    
+    int errorOccurred;
+    SEXP ret = R_tryEval(unser, R_GlobalEnv, &errorOccurred);
+    if (errorOccurred) {
+      std::cout << "Error occurred unserializing environment." << std::endl;
+    }
+    
+    
+    Rcpp::Environment loaded_environment = Rcpp::as<Rcpp::Environment>(ret);
+    
+    UNPROTECT(2);
+    
+    return loaded_environment;
+  } catch (const std::exception& e) {
+    // Handle exceptions
+    Rcpp::Rcout <<"Unable to read environment from shared memory."<<std::endl;
+    return R_NilValue;
+  }
+}
+
+void copyEnvironment(const Rcpp::Environment& sourceEnv, Rcpp::Environment& newEnv) {
+  // Rcpp::Environment newEnv = Rcpp::Environment::global_env();
+  
+  Rcpp::CharacterVector names = sourceEnv.ls(true);
+  
+  for (int i = 0; i < names.size(); ++i) {
+    std::string name = Rcpp::as<std::string>(names[i]);
+    //        Rcpp::Symbol symbol(names[i]);
+    SEXP value = sourceEnv[name];
+    
+    // Assign the symbol and its value to the new environment
+    newEnv.assign(name, value);
+  }
+  
+}
 
 class Process {
   std::shared_ptr<boost::process::child> child_m;
-  
+  std::string sm_name_m;
 public:
   int rank;
   Rcpp::RawVector fun; //serialized function
   Rcpp::RawVector env; //serialized environment
+  Rcpp::Environment environment;
   boost::process::ipstream child_output;
   boost::process::opstream child_input;
   std::thread thread_object;
@@ -171,8 +229,8 @@ public:
     
     //Copy environment to shared memory
     Rcpp::Environment E = copyEnvironment(env);
-    E.assign("process_rank", rank);
-    std::string path = "";
+    E.assign("processR.rank", rank);
+    std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
     std::stringstream ss_path;
     
     ss_path<<getRLibraryPath()<<"/processR/bin";
@@ -180,14 +238,18 @@ public:
       ss_path<<"/rchild";
       path = ss_path.str();
     } else {
-      std::cout << "Libaray directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
+      std::cout << "Library directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
     }
+    
  
     std::stringstream sm_name_env;
+    std::stringstream sm_name_env_ret;
     std::stringstream sm_name_fun;
     std::time_t t = std::time(0);
     sm_name_env << "processR_sm_env_" << t<<"_"<<rank;
     sm_name_fun << "processR_sm_fun_" << t<<"_"<<rank;
+    sm_name_env_ret<< sm_name_env.str()<<"_ret";
+    this->sm_name_m = sm_name_env_ret.str();
     // std::cout << sm_name_env.str() << "\n\n";
  
     
@@ -223,16 +285,19 @@ public:
   void join() {
     this->collect();
     this->child_m->join();
+    this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
   }
   
   void wait() {
     this->collect();
     this->child_m->wait();
+    this->environment = readEnvironmentFromSharedMemory(sm_name_m);
   }
   
   void terminate() {
     this->collect();
     this->child_m->terminate();
+    this->environment = readEnvironmentFromSharedMemory(sm_name_m);
   }
   
   void collect(){
@@ -240,6 +305,7 @@ public:
     while (this->child_output && std::getline(this->child_output, line) && !line.empty()) {
       this->message << line << std::endl;
     }
+    
   }
   
   std::string get_message(){
@@ -250,21 +316,25 @@ public:
     Rcpp::Rcout<<this->message.str();
   }
   
+  Rcpp::Environment get_environment(){
+    return this->environment;
+  }
+  
 };
+
+// void message_collector(Process& p)
+// {
+//   std::string line;
+//   while (p.child_output && std::getline(p.child_output, line) && !line.empty()) {
+//     p.message << line << std::endl;
+//   }
+// }
+
 
 // [[Rcpp::export]]
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
   
-  std::string path = "";
-  std::stringstream ss_path;
-  
-  ss_path<<getRLibraryPath()<<"/processR/bin";
-  if (std::filesystem::exists(ss_path.str()) && std::filesystem::is_directory(ss_path.str())) {
-    ss_path<<"/rchild";
-    path = ss_path.str();
-  } else {
-    std::cout << "Libaray directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
-  }
+  std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
   
   
   std::stringstream sm_name_env;
@@ -326,23 +396,24 @@ RCPP_EXPOSED_CLASS(Process)
     .method("terminate", &Process::terminate)
     .method("get_message", &Process::get_message)
     .method("print", &Process::print)
+    .method("get_environment", &Process::get_environment)
     .field("rank", &Process::rank);
   }
 
 // // [[Rcpp::export]]
-//Process CreateProcess(){
-//  return Process();
-//}
+// Process CreateProcess(){
+//   return Process();
+// }
 
+
+// [[Rcpp::export]]
+size_t HardwareConcurrency(){
+  return std::thread::hardware_concurrency();
+}
 
 /**
  * Returns a list of children.
  */
-
-//[[Rcpp::export]]
-size_t HardwareConcurency(){
-  return std::thread::hardware_concurrency();
-}
 
 // [[Rcpp::export]]
 Rcpp::List CreateProcessPool(int size) {

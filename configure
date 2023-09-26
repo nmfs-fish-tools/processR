@@ -1,0 +1,42 @@
+set -x
+set -e
+
+which cmake
+
+rm -rf _builds
+
+cmake -H. -B_builds \
+    -DCMAKE_VERBOSE_MAKEFILE=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=_install \
+    -DCMAKE_SHARED_LIBRARY_PREFIX_CXX=""
+
+
+
+
+cmake --build _builds --target install --config Release
+
+pwd
+cd src/child 
+
+
+cmake -H. -B_builds \
+    -DCMAKE_VERBOSE_MAKEFILE=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=_install \
+    -DCMAKE_SHARED_LIBRARY_PREFIX_CXX=""
+
+cmake --build _builds --target install --config Release
+
+cd ../..
+
+cp _install/lib/processR.so libs/processR.so || echo "Failed: processR.so -> src"
+cp _install/libs/processR.dylib inst/libs/processR.so || echo "Failed: processR.dylib -> src"
+cp -a src/child/_install/bin/. inst/bin || echo "Failed: rchild -> bin"
+
+#clean up
+rm -r src/child/_install
+rm -r src/child/_builds
+rm -r _install
+rm -r _builds
+
