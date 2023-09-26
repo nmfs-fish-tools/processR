@@ -175,7 +175,7 @@ run_fims<-function(){
   results<<-list()
   library(FIMS)
   library(minimizR)
-  minimizer<-1
+  minimizer<-2
 
   
   id <- processR.rank
@@ -189,7 +189,7 @@ run_fims<-function(){
                                  control = list(maxit = 1000000, reltol = 1e-15)
       )
     }else{
-      results[[index]]<<-minimizR(obj$par, obj$fn, obj$gr, control = list(tolerance = 1e-8, verbose = FALSE))
+      results[[index]]<<-minimizR(obj$par, obj$fn, obj$gr, control = list(tolerance = 1e-4, verbose = FALSE))
     }
     #write(x = i, file = paste0(paste("id",processR.rank)),".txt")
     index = index+1
@@ -230,31 +230,36 @@ if (id == 0) {
 
 
 
-
-#capture minimizer output
-completed<-list()
-pool<-list()
 start<-Sys.time()
+
+#create a pool of child processes
+pool<-list()
+
 for(i in 1:processR::HardwareConcurrency()){
+  #create a new child process
   pool[[i]] <- new(p$Process)
+  
+  #start the process. functionm, environment, rank
   pool[[i]]$start(run_fims, environment(), i)
 }
 
+#iterate of the children and capture information
 for(i in 1:processR::HardwareConcurrency()){
-  pool[[i]]$wait()
- # pool[[i]]$print()
+    
+   #wait for the child to complete
+   pool[[i]]$wait()
+   
+   #get child out stream
+   message<-pool[[i]]$get_message()
+   
+   #access the childs environment
    env<-as.environment(pool[[i]]$get_environment());
-   #print(env[["results"]])
+   #show minimizer results
+   print(env[["results"]])
 }
 
-
-
-
-
-#execute all slaves and append the completed list
 end_<-Sys.time()
 
-print(completed)
 
 
 runtime<- (end_ - start)
