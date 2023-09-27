@@ -225,6 +225,18 @@ public:
     
   }
   
+  Process(const Rcpp::Function& fun, const Rcpp::Environment& env, const int& rank){
+    this->start(fun, env, rank);
+  }
+  
+  Process(const std::string& path) {
+    // Launch the child process
+    this->child_m = std::make_shared<boost::process::child>(path,
+                                                            boost::process::std_in < this->child_input,
+                                                            boost::process::std_out > this->child_output
+    );
+  }
+  
   void start(const Rcpp::Function& fun, const Rcpp::Environment& env, const int& rank) {
     
     //Copy environment to shared memory
@@ -288,6 +300,10 @@ public:
     this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
   }
   
+  bool joinable(){
+    return this->child_m->joinable();
+  }
+  
   void wait() {
     this->collect();
     this->child_m->wait();
@@ -305,7 +321,22 @@ public:
     while (this->child_output && std::getline(this->child_output, line) && !line.empty()) {
       this->message << line << std::endl;
     }
-    
+  }
+  
+  bool valid(){
+    return this->child_m->valid();
+  }
+  
+  bool running(){
+    return this->child_m->running();
+  }
+  
+  int exit_code(){
+    return this->child_m->exit_code();
+  }
+  
+  size_t pid(){
+    return this->child_m->id();
   }
   
   std::string get_message(){
@@ -390,14 +421,21 @@ RCPP_EXPOSED_CLASS(Process)
   RCPP_MODULE(processR) {
     Rcpp::class_<Process>("Process")
     .constructor()
-    .method("start", &Process::start)
-    .method("join", &Process::join)
-    .method("wait", &Process::wait)
-    .method("terminate", &Process::terminate)
-    .method("get_message", &Process::get_message)
-    .method("print", &Process::print)
-    .method("get_environment", &Process::get_environment)
-    .field("rank", &Process::rank);
+    .constructor<std::string>()
+    .constructor<Rcpp::Function, Rcpp::Environment, int>()
+    .method("start", &Process::start, "Start the child process.")
+    .method("join", &Process::join, "Join the child. This just calls wait.")
+    .method("joinable", &Process::joinable, "Check if the child is joinable.")
+    .method("wait", &Process::wait,"Wait for the child process to exit.")
+    .method("terminate", &Process::terminate, "Terminate the child process.This function will cause the child process to unconditionally and immediately exit. It is implement with SIGKILL on posix and TerminateProcess on windows.")
+    .method("valid", &Process::valid, "Check if this handle holds a child process.")
+    .method("pid", &Process::pid, "Get the Process Identifier.")
+    .method("running", &Process::running,"Check if the child process is running.")
+    .method("exit_code", &Process::exit_code,"Get the exit_code. The return value is without any meaning if the child wasn't waited for or if it was terminated.")
+    .method("get_message", &Process::get_message, "Get data sent to output stream")
+    .method("print", &Process::print, "Print the output stream.")
+    .method("get_environment", &Process::get_environment, "Get the return R environment.")
+    .field("rank", &Process::rank, "The user assigned rank.");
   }
 
 // // [[Rcpp::export]]
