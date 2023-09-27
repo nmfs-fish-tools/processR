@@ -215,9 +215,10 @@ public:
   boost::process::opstream child_input;
   std::thread thread_object;
   std::stringstream message;
+  bool is_r_process = true;
   
   Process(const Process& other) :
-    child_m((other.child_m)), rank(other.rank), fun(other.fun), env(other.env) {
+    child_m((other.child_m)), rank(other.rank), fun(other.fun), env(other.env),is_r_process(other.is_r_process) {
   }
   
   
@@ -230,6 +231,7 @@ public:
   }
   
   Process(const std::string& path) {
+    this->is_r_process = false;
     // Launch the child process
     this->child_m = std::make_shared<boost::process::child>(path,
                                                             boost::process::std_in < this->child_input,
@@ -238,6 +240,7 @@ public:
   }
   
   void start(const Rcpp::Function& fun, const Rcpp::Environment& env, const int& rank) {
+    this->is_r_process = true;
     
     //Copy environment to shared memory
     Rcpp::Environment E = copyEnvironment(env);
@@ -297,7 +300,9 @@ public:
   void join() {
     this->collect();
     this->child_m->join();
-    this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
+    if(this->is_r_process){
+        this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
+    }
   }
   
   bool joinable(){
@@ -307,13 +312,17 @@ public:
   void wait() {
     this->collect();
     this->child_m->wait();
-    this->environment = readEnvironmentFromSharedMemory(sm_name_m);
+    if(this->is_r_process){
+      this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
+    }
   }
   
   void terminate() {
     this->collect();
     this->child_m->terminate();
-    this->environment = readEnvironmentFromSharedMemory(sm_name_m);
+    if(this->is_r_process){
+      this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
+    }
   }
   
   void collect(){
@@ -353,12 +362,12 @@ public:
   
 };
 
-// void message_collector(Process& p)
-// {
-//   std::string line;
-//   while (p.child_output && std::getline(p.child_output, line) && !line.empty()) {
-//     p.message << line << std::endl;
-//   }
+
+
+// // [[Rcpp::export]]
+// Process CreateProcess(){
+//   Process p;
+//   return p;
 // }
 
 

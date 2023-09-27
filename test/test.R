@@ -1,9 +1,11 @@
 library(processR)
-library(Rcpp)
-library(RInside)
+# library(Rcpp)
+# library(RInside)
 
-#get the Rcpp module
-p <- Rcpp::Module(module = "processR", PACKAGE = "processR")
+
+P<-new(Process, "r --slave --no-save -e cat(R.home())")
+P$wait()
+cat(P$get_message())
 
 v <- 10
 
@@ -25,14 +27,18 @@ test <- function() {
   
 }
 
+
+
 #create a pool children
 pool <- list()
 
 for (i in 1:processR::HardwareConcurrency()) {
   #creat a new child
-  pool[[i]] <- new(p$Process)
+  
+  pool[[i]] <- new(processR::Process)
   #pass the entry function, environment, and child rank
-  pool[[i]]$start(test, ee, i)
+  pool[[i]]$start(test, environment(), i)
+  print(pool[[i]]$pid() )
 }
 
 
