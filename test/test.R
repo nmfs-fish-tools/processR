@@ -3,9 +3,9 @@ library(processR)
 # library(RInside)
 
 
-P<-new(Process, "r --slave --no-save -e cat(R.home())")
-P$wait()
-cat(P$get_message())
+# P<-new(Process, "r --slave --no-save -e cat(R.home())")
+# P$wait()
+# cat(P$get_message())
 
 v <- 10
 

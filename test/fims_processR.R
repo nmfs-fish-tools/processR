@@ -4,7 +4,7 @@ library(processR)
 
 
 #get the Rcpp module
-p <- Rcpp::Module(module = "processR", PACKAGE = "processR")
+# p <- Rcpp::Module(module = "processR", PACKAGE = "processR")
 
 
 
@@ -237,7 +237,7 @@ pool<-list()
 
 for(i in 1:processR::HardwareConcurrency()){
   #create a new child process
-  pool[[i]] <- new(p$Process)
+  pool[[i]] <- new(processR::Process)
   
   #start the process. functionm, environment, rank
   pool[[i]]$start(run_fims, environment(), i)
