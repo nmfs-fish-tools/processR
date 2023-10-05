@@ -9,5 +9,9 @@ Description: A multi-process package for R.
 License: GPL (>= 2)
 Depends:
     R (>= 4.0)
-Imports: Rcpp (>= 1.0.10), methods, RInside, BH
+Imports: 
+      Rcpp (>= 1.0.10), 
+      methods, 
+      RInside, 
+      BH
 LinkingTo: Rcpp, RInside
