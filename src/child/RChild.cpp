@@ -231,8 +231,8 @@ void writeToSharedMemory_(const std::string& shared_memory_name, const Rcpp::Raw
   Rcpp::Function function = readFunctionFromSharedMemory_(ss_fun_name);
 
 
-  function();
-
+  SEXP ret = function();
+  
 
   std::stringstream sm_name_env_ret;
   sm_name_env_ret << ss_env_name << "_ret";
@@ -241,6 +241,7 @@ void writeToSharedMemory_(const std::string& shared_memory_name, const Rcpp::Raw
   Rcpp::Function serializeFunc = baseEnv["serialize"];
   Rcpp::Environment ret_env = Rcpp::new_env(); // = Rcpp::Environment::global_env();
   copyFromGlobalEnvironment(ret_env);
+  ret_env.assign("processR.return", ret);
   Rcpp::RawVector serialized_env = serializeFunc(ret_env, R_NilValue);
 
   writeToSharedMemory_(sm_name_env_ret.str(), serialized_env);

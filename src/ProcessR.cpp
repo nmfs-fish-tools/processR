@@ -349,6 +349,7 @@ public:
   }
   
   std::string get_message(){
+    this->collect();
     return this->message.str();;
   }
   
@@ -358,6 +359,16 @@ public:
   
   Rcpp::Environment get_environment(){
     return this->environment;
+  }
+  
+  std::string read_line(){
+    std::string line;
+    std::getline(this->child_output, line);
+    return line;
+  }
+  
+  void write(const std::string& str){
+    this->child_input <<str;
   }
   
 };
@@ -444,6 +455,8 @@ RCPP_EXPOSED_CLASS(Process)
     .method("get_message", &Process::get_message, "Get data sent to output stream")
     .method("print", &Process::print, "Print the output stream.")
     .method("get_environment", &Process::get_environment, "Get the return R environment.")
+    .method("read_line", &Process::read_line, "Read a line from the process out stream.")
+    .method("write", &Process::write, "Write to the process in stream.")
     .field("rank", &Process::rank, "The user assigned rank.");
   }
 

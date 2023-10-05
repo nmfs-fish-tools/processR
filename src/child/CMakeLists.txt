@@ -99,7 +99,7 @@ include_directories( ${RCPP_INCLUDE} )
 include_directories( ${RINSIDE_INCLUDE} )
 include_directories( ${R_INCLUDE} )
 
-MESSAGE(STATUS "Boost_LIBRARIES is ${Boost_LIBRARIES}")
+
 
 
 

@@ -1,4 +1,5 @@
 library(FIMS)
+library(TMB)
 library(minimizR)
 library(processR)
 
@@ -172,6 +173,7 @@ init_fims<-function(i){
 
 
 run_fims<-function(){
+  reports<<-list()
   results<<-list()
   library(FIMS)
   library(minimizR)
@@ -191,6 +193,9 @@ run_fims<-function(){
     }else{
       results[[index]]<<-minimizR(obj$par, obj$fn, obj$gr, control = list(tolerance = 1e-4, verbose = FALSE))
     }
+    
+    reports[[index]]<<-obj
+    
     #write(x = i, file = paste0(paste("id",processR.rank)),".txt")
     index = index+1
   }
@@ -204,7 +209,7 @@ run_fims<-function(){
 
 
 id <- 0#mpi.comm.rank(comm = 0)
-ns <- processR::HardwareConcurrency() 
+ns <- processR::HardwareConcurrency() - 1
 
 nsims <- NUMBER_OF_MODEL_RUNS
 
@@ -235,7 +240,7 @@ start<-Sys.time()
 #create a pool of child processes
 pool<-list()
 
-for(i in 1:processR::HardwareConcurrency()){
+for(i in 1:ns){
   #create a new child process
   pool[[i]] <- new(processR::Process)
   
@@ -244,7 +249,7 @@ for(i in 1:processR::HardwareConcurrency()){
 }
 
 #iterate of the children and capture information
-for(i in 1:processR::HardwareConcurrency()){
+for(i in 1:ns){
     
    #wait for the child to complete
    pool[[i]]$wait()
@@ -252,10 +257,23 @@ for(i in 1:processR::HardwareConcurrency()){
    #get child out stream
    message<-pool[[i]]$get_message()
    
-   #access the childs environment
-   env<-as.environment(pool[[i]]$get_environment());
+   #access the child's environment
+   env<-pool[[i]]$get_environment();
+   
    #show minimizer results
-   print(env[["results"]])
+   for(j in begin[env[["processR.rank"]]]:end[env[["processR.rank"]]]){
+     #results[[j]]<<-env[["results"]][[j]]
+     cat(env[["processR.rank"]])
+     cat(":")
+      cat(j)
+      cat("\n")
+     # cat("<--->")
+    
+     # cat("")
+     # cat("<--->")
+      # cat(end[env[["processR.rank"]]])
+   }
+
 }
 
 end_<-Sys.time()

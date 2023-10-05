@@ -16,17 +16,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ## Simple Example
-
 
 ```{r, echo=TRUE, results='asis'}
 library(processR)
 library(Rcpp)
 library(RInside)
 
-#get the Rcpp module
-p <- Rcpp::Module(module = "processR", PACKAGE = "processR")
 
 v <- 10
 
@@ -55,7 +51,7 @@ pool <- list()
 for (i in 1:processR::HardwareConcurrency()) {
   
   #creat a new child
-  pool[[i]] <- new(p$Process)
+  pool[[i]] <- new(Process)
   
   #pass the entry function, environment, and child rank
   pool[[i]]$start(test, environment(), i)
@@ -85,5 +81,3 @@ print("done.")
 
 
 ```
-
-
