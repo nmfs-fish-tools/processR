@@ -7,6 +7,13 @@ MESSAGE("generating make files for ${CMAKE_PROJECT_NAME}")
 
 set (CMAKE_CXX_STANDARD 17)
 
+# Set up Rcpp
+FetchContent_Declare(
+  rcpp
+  URL https://github.com/RcppCore/Rcpp/archive/refs/tags/1.0.8.zip
+)
+FetchContent_MakeAvailable(rcpp)
+
 MESSAGE(STATUS "Looking for R executable")
 
 		EXECUTE_PROCESS(
