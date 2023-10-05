@@ -12,6 +12,8 @@ rnorm_wrapper<-function(){
   return(rnorm(n=168, mean = 50, sd = processR.rank))
 }
 
+ 
+
 
 #create a pool child processes
 pool <- processR::CreateProcessPool()#list()
