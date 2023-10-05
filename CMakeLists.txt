@@ -45,16 +45,36 @@ IF(EXISTS ${R_HOME}/library/Rcpp)
 
  SET(RCPP_HOME ${R_HOME}/library/Rcpp)
  SET(RCPP_INCLUDE ${RCPP_HOME}/include)
+ include_directories("${RCPP_INCLUDE}")
  SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
  
 ELSEIF(EXISTS ${R_USER}/library/Rcpp)
 
  SET(RCPP_HOME ${R_USER}/library/Rcpp)
  SET(RCPP_INCLUDE ${R_USER}/include)
+ include_directories("${RCPP_INCLUDE}")
  SET(_LIB_RCPP ${R_USER}/libs/Rcpp.so)
  
 ELSE()
  MESSAGE(FATAL_ERROR "Package Rcpp not found")
+ENDIF()
+
+
+#set boost home
+IF(EXISTS ${R_HOME}/library/BH)
+
+ SET(BOOST_HOME ${R_HOME}/library/BH)
+ SET(BOOST_INCLUDE ${BOOST_HOME}/include)
+ include_directories("${BOOST_INCLUDE}")
+
+ELSEIF(EXISTS ${R_USER}/BH)
+
+ SET(BOOST_HOME ${R_USER}/BH)
+ SET(BOOST_INCLUDE ${BOOST_HOME}/include)
+ include_directories("${BOOST_INCLUDE}")
+ 
+ELSE()
+ MESSAGE(FATAL_ERROR "Package BH not found")
 ENDIF()
 
 
@@ -63,19 +83,19 @@ file(MAKE_DIRECTORY ${LIB_DIR})
 
 MESSAGE(STATUS "RCPP_INCLUDE is ${RCPP_INCLUDE}")
 MESSAGE(STATUS "R_LIB is ${R_LIB}")
-MESSAGE(STATUS "RINSIDE_INCLUDE is ${RINSIDE_INCLUDE}")
+#MESSAGE(STATUS "RINSIDE_INCLUDE is ${RINSIDE_INCLUDE}")
 MESSAGE(STATUS "_LIB_RCPP is ${_LIB_RCPP}")
-
+MESSAGE(STATUS "BOOST_INCLUDE is ${BOOST_INCLUDE}")
 
 link_directories(${RCPP_HOME}/libs)
 link_directories(${R_HOME}/lib)
 
 #find boost
-find_package( Boost REQUIRED COMPONENTS program_options regex )
-include_directories( ${Boost_INCLUDE_DIRS} )
-include_directories( ${RCPP_INCLUDE} )
-include_directories( ${RINSIDE_INCLUDE} )
-include_directories( ${R_INCLUDE} )
+#find_package( Boost REQUIRED COMPONENTS program_options regex )
+#include_directories( ${Boost_INCLUDE_DIRS} )
+#include_directories( ${RCPP_INCLUDE} )
+#include_directories( ${RINSIDE_INCLUDE} )
+#include_directories( ${R_INCLUDE} )
  
 
 include(GenerateExportHeader)

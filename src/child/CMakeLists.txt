@@ -59,24 +59,60 @@ ENDIF()
 
 
 
+#set RInside home
+IF(EXISTS ${R_HOME}/library/RInside)
 
+SET(RINSIDE_HOME ${R_HOME}/RInside)
+MESSAGE(STATUS "RINSIDE_HOME is ${RINSIDE_HOME}")
+SET(RINSIDE_INCLUDE ${RINSIDE_HOME}/include)
+include_directories("${RINSIDE_INCLUDE}")
+
+ELSEIF(EXISTS ${R_USER}/RInside)
+
+SET(RINSIDE_HOME ${R_USER}/RInside)
+MESSAGE(STATUS "RINSIDE_HOME is ${RINSIDE_HOME}")
+SET(RINSIDE_INCLUDE ${RINSIDE_HOME}/include)
+include_directories("${RINSIDE_INCLUDE}")
+ELSE()
+ MESSAGE(FATAL_ERROR "Package RInside not found")
+ENDIF()
 
 #set Rcpp home
 IF(EXISTS ${R_HOME}/library/Rcpp)
 
  SET(RCPP_HOME ${R_HOME}/library/Rcpp)
  SET(RCPP_INCLUDE ${RCPP_HOME}/include)
-
+ include_directories("${RCPP_INCLUDE}")
+ SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
+ 
 ELSEIF(EXISTS ${R_USER}/library/Rcpp)
 
  SET(RCPP_HOME ${R_USER}/library/Rcpp)
  SET(RCPP_INCLUDE ${R_USER}/include)
-
+ include_directories("${RCPP_INCLUDE}")
+ SET(_LIB_RCPP ${R_USER}/libs/Rcpp.so)
+ 
 ELSE()
  MESSAGE(FATAL_ERROR "Package Rcpp not found")
 ENDIF()
 
 
+#set boost home
+IF(EXISTS ${R_HOME}/library/BH)
+
+ SET(BOOST_HOME ${R_HOME}/library/BH)
+ SET(BOOST_INCLUDE ${BOOST_HOME}/include)
+ include_directories("${BOOST_INCLUDE}")
+
+ELSEIF(EXISTS ${R_USER}/BH)
+
+ SET(BOOST_HOME ${R_USER}/BH)
+ SET(BOOST_INCLUDE ${BOOST_HOME}/include)
+ include_directories("${BOOST_INCLUDE}")
+ 
+ELSE()
+ MESSAGE(FATAL_ERROR "Package BH not found")
+ENDIF()
 
 SET(BIN_DIR ${CMAKE_INSTALL_PREFIX}/bin)
 file(MAKE_DIRECTORY ${BIN_DIR})
@@ -86,18 +122,18 @@ MESSAGE(STATUS "R_LIB is ${R_LIB}")
 MESSAGE(STATUS "RINSIDE_INCLUDE is ${RINSIDE_INCLUDE}")
 MESSAGE(STATUS "_LIB_RINSIDE is ${_LIB_RINSIDE}")
 MESSAGE(STATUS "_LIB_RCPP is ${_LIB_RCPP}")
-
+MESSAGE(STATUS "BOOST_INCLUDE is ${BOOST_INCLUDE}")
 
 link_directories(${RINSIDE_HOME}/libs)
 #link_directories(${RCPP_HOME}/libs)
 link_directories(${R_HOME}/lib)
 
 #find boost
-find_package( Boost REQUIRED COMPONENTS program_options regex )
-include_directories( ${Boost_INCLUDE_DIRS} )
-include_directories( ${RCPP_INCLUDE} )
-include_directories( ${RINSIDE_INCLUDE} )
-include_directories( ${R_INCLUDE} )
+#find_package( Boost REQUIRED COMPONENTS program_options regex )
+#include_directories( ${Boost_INCLUDE_DIRS} )
+#include_directories( ${RCPP_INCLUDE} )
+#include_directories( ${RINSIDE_INCLUDE} )
+#include_directories( ${R_INCLUDE} )
 
 
 
