@@ -51,9 +51,9 @@ IF(EXISTS ${R_HOME}/library/Rcpp)
 ELSEIF(EXISTS ${R_USER}/Rcpp)
 
  SET(RCPP_HOME ${R_USER}/Rcpp)
- SET(RCPP_INCLUDE ${R_USER}/include)
+ SET(RCPP_INCLUDE ${RCPP_HOME}/include)
  include_directories("${RCPP_INCLUDE}")
- SET(_LIB_RCPP ${R_USER}/libs/Rcpp.so)
+ SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
  
 ELSE()
  MESSAGE(FATAL_ERROR "Package Rcpp not found")
