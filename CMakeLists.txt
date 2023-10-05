@@ -48,9 +48,9 @@ IF(EXISTS ${R_HOME}/library/Rcpp)
  include_directories("${RCPP_INCLUDE}")
  SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
  
-ELSEIF(EXISTS ${R_USER}/library/Rcpp)
+ELSEIF(EXISTS ${R_USER}/Rcpp)
 
- SET(RCPP_HOME ${R_USER}/library/Rcpp)
+ SET(RCPP_HOME ${R_USER}/Rcpp)
  SET(RCPP_INCLUDE ${R_USER}/include)
  include_directories("${RCPP_INCLUDE}")
  SET(_LIB_RCPP ${R_USER}/libs/Rcpp.so)
