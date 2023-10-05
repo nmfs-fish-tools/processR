@@ -415,6 +415,7 @@ void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
                                                               boost::process::std_out > child_output
   );
   
+  
   int rank = 0;
   child_input << rank;
   child_input.flush();
