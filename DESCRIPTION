@@ -7,5 +7,5 @@ Author: Matthew Supernaw
 Maintainer: Matthew Supernaw <matthew.supernaw@noaa.gov>
 Description: A multi-process package for R.
 License: GPL (>= 2)
-Imports: Rcpp (>= 1.0.10), RInside
+Imports: Rcpp (>= 1.0.10), RInside, BH
 LinkingTo: Rcpp, RInside
