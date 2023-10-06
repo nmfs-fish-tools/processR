@@ -216,16 +216,16 @@ nsims <- NUMBER_OF_MODEL_RUNS
 begin <- rep(0, ns)
 end <- rep(0, ns)
 
-#create scenario segments
+#create scenario partitions
 if (id == 0) {
-  segments <- nsims / ns
-  print(paste("segments ", segments))
+  partitions <- nsims / ns
+  print(paste("partitions ", partitions))
   for (i in 1:ns) {
     if (i < ns) {
-      begin[i] <- as.integer((i - 1) * segments+1)
-      end[i] <- as.integer(i * segments)
+      begin[i] <- as.integer((i - 1) * partitions+1)
+      end[i] <- as.integer(i * partitions)
     } else{
-      begin[i] <- as.integer((i - 1) * segments+1)
+      begin[i] <- as.integer((i - 1) * partitions+1)
       end[i] <- nsims
     }
   }
@@ -259,19 +259,11 @@ for(i in 1:ns){
    
    #access the child's environment
    env<-pool[[i]]$get_environment();
+   results<-env[["results"]]
    
    #show minimizer results
    for(j in begin[env[["processR.rank"]]]:end[env[["processR.rank"]]]){
-     #results[[j]]<<-env[["results"]][[j]]
-     cat(env[["processR.rank"]])
-     cat(":")
-      cat(j)
-      cat("\n")
-     # cat("<--->")
-    
-     # cat("")
-     # cat("<--->")
-      # cat(end[env[["processR.rank"]]])
+      results[[j]]
    }
 
 }
