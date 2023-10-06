@@ -20,7 +20,7 @@ MESSAGE(STATUS "Looking for R executable")
 MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}") 
 
 EXECUTE_PROCESS(
-		COMMAND ${R_EXECUTABLE} "--version"
+		COMMAND /Users/runner/work/processR/processR/check/processR.Rcheck/R_check_bin/R "--version"
 		OUTPUT_VARIABLE R_VERSION)
 
 MESSAGE(STATUS "R_VERSION is ${R_VERSION}")
