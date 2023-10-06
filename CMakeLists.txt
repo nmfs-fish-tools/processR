@@ -19,12 +19,11 @@ MESSAGE(STATUS "Looking for R executable")
 
 MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}") 
 
-  execute_process(WORKING_DIRECTORY .
-                  COMMAND ${R_EXECUTABLE} RHOME
-                  OUTPUT_VARIABLE R_ROOT_DIR
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+EXECUTE_PROCESS(
+		COMMAND R "--version"
+		OUTPUT_VARIABLE R_VERSION)
 
-MESSAGE(STATUS "R_ROOT_DIR is ${R_ROOT_DIR}")
+MESSAGE(STATUS "R_VERSION is ${R_VERSION}")
 
 EXECUTE_PROCESS(
 		COMMAND R "--slave" "--no-save" "-e" "cat(R.home())"
