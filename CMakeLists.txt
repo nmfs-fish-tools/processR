@@ -1,7 +1,10 @@
 # find the R binary
 cmake_minimum_required(VERSION 3.14)
 
-project(processR)
+
+project(processR
+  CXX
+) # CXX is the language name
 
 MESSAGE("generating make files for ${CMAKE_PROJECT_NAME}")
 
