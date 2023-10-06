@@ -65,7 +65,7 @@ ELSEIF(EXISTS ${R_USER}/Rcpp)
  SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
  
 ELSE()
- MESSAGE(FATAL_ERROR "Package Rcpp not found")
+ MESSAGE(FATAL_ERROR  "Package Rcpp not found at ${R_HOME} or ${R_USER}")
 ENDIF()
 
 
