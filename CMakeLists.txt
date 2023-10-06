@@ -19,11 +19,12 @@ MESSAGE(STATUS "Looking for R executable")
 
 MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}") 
 
-EXECUTE_PROCESS(
-		COMMAND  "${R_EXECUTABLE} --slave --no-save -e cat(R.home())"
-		OUTPUT_VARIABLE HI_FROM_R)
+  execute_process(WORKING_DIRECTORY .
+                  COMMAND ${R_EXECUTABLE} RHOME
+                  OUTPUT_VARIABLE R_ROOT_DIR
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-MESSAGE(STATUS "HI_FROM_R is ${HI_FROM_R}")
+MESSAGE(STATUS "R_ROOT_DIR is ${R_ROOT_DIR}")
 
 EXECUTE_PROCESS(
 		COMMAND R "--slave" "--no-save" "-e" "cat(R.home())"
