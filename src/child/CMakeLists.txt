@@ -29,11 +29,11 @@ MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}")
 
 
 EXECUTE_PROCESS(
-		COMMAND R "--slave" "--no-save" "-e" "cat(R.home())"
+		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(R.home())"
 		OUTPUT_VARIABLE R_HOME)
 		
 		EXECUTE_PROCESS(
-		COMMAND R "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))"
+		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))"
 		OUTPUT_VARIABLE R_USER)
 
 MESSAGE(STATUS "R_USER is ${R_USER}")
