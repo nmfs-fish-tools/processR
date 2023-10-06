@@ -19,11 +19,10 @@ MESSAGE(STATUS "Looking for R executable")
 
 MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}") 
 
-EXECUTE_PROCESS(
-		COMMAND /Users/runner/work/processR/processR/check/processR.Rcheck/R_check_bin/R "--version"
-		OUTPUT_VARIABLE R_VERSION)
 
-MESSAGE(STATUS "R_VERSION is ${R_VERSION}")
+MESSAGE(STATUS "R_HOME is ${R_HOME}")
+SET(R_INCLUDE ${R_HOME}/include)
+include_directories("${R_INCLUDE}")
 
 EXECUTE_PROCESS(
 		COMMAND R "--slave" "--no-save" "-e" "cat(R.home())"
@@ -36,9 +35,6 @@ EXECUTE_PROCESS(
 MESSAGE(STATUS "R_USER is ${R_USER}")
 
 
-MESSAGE(STATUS "R_HOME is ${R_HOME}")
-SET(R_INCLUDE ${R_HOME}/include)
-include_directories("${R_INCLUDE}")
 
 
 SET(R_LIB ${R_HOME}/lib)
