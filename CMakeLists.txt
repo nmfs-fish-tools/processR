@@ -10,98 +10,6 @@ MESSAGE("generating make files for ${CMAKE_PROJECT_NAME}")
 
 set (CMAKE_CXX_STANDARD 17)
 
-
-
-# detection for OSX
-if(APPLE)
-
-  find_library(LIBR_LIBRARIES R)
-
-  if(LIBR_LIBRARIES MATCHES ".*\\.framework")
-    set(LIBR_HOME "${LIBR_LIBRARIES}/Resources" CACHE PATH "R home directory")
-    set(LIBR_INCLUDE_DIRS "${LIBR_HOME}/include" CACHE PATH "R include directory")
-    set(LIBR_EXECUTABLE "${LIBR_HOME}/R" CACHE PATH "R executable")
-    set(LIBR_LIB_DIR "${LIBR_HOME}/lib" CACHE PATH "R lib directory")
-  else()
-    get_filename_component(_LIBR_LIBRARIES "${LIBR_LIBRARIES}" REALPATH)
-    get_filename_component(_LIBR_LIBRARIES_DIR "${_LIBR_LIBRARIES}" DIRECTORY)
-    set(LIBR_EXECUTABLE "${_LIBR_LIBRARIES_DIR}/../bin/R")
-    execute_process(
-      COMMAND ${LIBR_EXECUTABLE} "--slave" "--vanilla" "-e" "cat(R.home())"
-      OUTPUT_VARIABLE LIBR_HOME)
-    set(LIBR_HOME ${LIBR_HOME} CACHE PATH "R home directory")
-    set(LIBR_INCLUDE_DIRS "${LIBR_HOME}/include" CACHE PATH "R include directory")
-    set(LIBR_LIB_DIR "${LIBR_HOME}/lib" CACHE PATH "R lib directory")
-  endif()
-  
-# detection for UNIX & Win32
-else()
-
-  # attempt to find R executable
-  if(NOT LIBR_EXECUTABLE)
-    find_program(LIBR_EXECUTABLE NAMES R R.exe)
-  endif()
-  
-  if(UNIX)
-
-    if(NOT LIBR_EXECUTABLE)
-      message(FATAL_ERROR "Unable to locate R executable.\
-        \nEither add its location to PATH or provide it through the LIBR_EXECUTABLE cmake variable")
-    endif()
-
-    # ask R for the home path
-    execute_process(
-      COMMAND ${LIBR_EXECUTABLE} "--slave" "--vanilla" "-e" "cat(R.home())"
-      OUTPUT_VARIABLE LIBR_HOME
-    )
-    # ask R for the include dir
-    execute_process(
-      COMMAND ${LIBR_EXECUTABLE} "--slave" "--no-save" "-e" "cat(R.home('include'))"
-      OUTPUT_VARIABLE LIBR_INCLUDE_DIRS
-    )
-    # ask R for the lib dir
-    execute_process(
-      COMMAND ${LIBR_EXECUTABLE} "--slave" "--no-save" "-e" "cat(R.home('lib'))"
-      OUTPUT_VARIABLE LIBR_LIB_DIR
-    )
-
-  # Windows
-  else()
-    # ask R for R_HOME 
-    if(LIBR_EXECUTABLE)
-      execute_process(
-        COMMAND ${LIBR_EXECUTABLE} "--slave" "--no-save" "-e" "cat(normalizePath(R.home(), winslash='/'))"
-        OUTPUT_VARIABLE LIBR_HOME)
-    endif()
-    # if R executable not available, query R_HOME path from registry
-    if(NOT LIBR_HOME)
-      get_filename_component(LIBR_HOME
-        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\${R_VERSION};InstallPath]"
-        ABSOLUTE)
-      if(NOT LIBR_HOME)
-        message(FATAL_ERROR "\nUnable to locate R executable.\
-          \nEither add its location to PATH or provide it through the LIBR_EXECUTABLE cmake variable")
-      endif()
-    endif()
-    # set exe location based on R_ARCH
-    if(NOT LIBR_EXECUTABLE)
-      set(LIBR_EXECUTABLE "${LIBR_HOME}/bin/${R_ARCH}/R.exe")
-    endif()
-    # set other R paths based on home path
-    set(LIBR_INCLUDE_DIRS "${LIBR_HOME}/include")
-    set(LIBR_LIB_DIR "${LIBR_HOME}/bin/${R_ARCH}")
- 
-message(STATUS "LIBR_HOME [${LIBR_HOME}]")
-message(STATUS "LIBR_EXECUTABLE [${LIBR_EXECUTABLE}]")
-message(STATUS "LIBR_INCLUDE_DIRS [${LIBR_INCLUDE_DIRS}]")
-message(STATUS "LIBR_LIB_DIR [${LIBR_LIB_DIR}]")
-message(STATUS "LIBR_CORE_LIBRARY [${LIBR_CORE_LIBRARY}]")
-
-  endif()
-
-endif()
-
-
 MESSAGE(STATUS "Looking for R executable")
 
 		EXECUTE_PROCESS(
@@ -112,11 +20,11 @@ MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}")
 
 
 EXECUTE_PROCESS(
-		COMMAND R "--slave" "--no-save" "-e" "cat(R.home())"
+		COMMAND "${R_EXECUTABLE}" "--slave" "--no-save" "-e" "cat(R.home())"
 		OUTPUT_VARIABLE R_HOME)
 		
 EXECUTE_PROCESS(
-		COMMAND R "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))"
+		COMMAND "${R_EXECUTABLE}" "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))"
 		OUTPUT_VARIABLE R_USER)
 
 MESSAGE(STATUS "R_USER is ${R_USER}")
