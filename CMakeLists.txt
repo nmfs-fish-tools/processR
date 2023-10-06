@@ -20,7 +20,7 @@ MESSAGE(STATUS "Looking for R executable")
 MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}") 
 
 EXECUTE_PROCESS(
-		COMMAND R "--slave" "--no-save" "-e" "cat("HI_FROM_R")"
+		COMMAND  "${R_EXECUTABLE} --slave --no-save -e cat("HI_FROM_R")"
 		OUTPUT_VARIABLE HI_FROM_R)
 
 MESSAGE(STATUS "HI_FROM_R is ${HI_FROM_R}")
