@@ -7,6 +7,8 @@ MESSAGE("generating make files for ${CMAKE_PROJECT_NAME}")
 
 set (CMAKE_CXX_STANDARD 17)
 
+include(FetchContent)
+
 # Set up Rcpp
 FetchContent_Declare(
   rcpp
