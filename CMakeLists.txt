@@ -23,7 +23,7 @@ MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}")
 
 
 EXECUTE_PROCESS(
-		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(R.home())"
+		COMMAND "${R_EXECUTABLE}" "--slave" "--no-save" "-e" "cat(R.home())"
 		OUTPUT_VARIABLE R_HOME)
 
 MESSAGE(STATUS "R_HOME is ${R_HOME}")
