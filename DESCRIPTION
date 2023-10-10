@@ -15,3 +15,4 @@ Imports:
       RInside, 
       BH
 LinkingTo: Rcpp, RInside
+RoxygenNote: 7.2.3
