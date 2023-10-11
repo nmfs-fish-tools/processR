@@ -24,7 +24,7 @@ MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}")
 MESSAGE(STATUS "Calling  ${R_EXECUTABLE} --slave --no-save -e cat(R.home()) to find home....") 
 
 EXECUTE_PROCESS(
-		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "'cat(R.home())'" 
+		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(R.home())" 
 		OUTPUT_VARIABLE R_HOME 
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -35,7 +35,7 @@ include_directories("${R_INCLUDE}")
 		
 		
 EXECUTE_PROCESS(
-		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "'cat(Sys.getenv('R_LIBS_USER'))'" 
+		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))" 
 		OUTPUT_VARIABLE R_USER 
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
