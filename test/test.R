@@ -9,7 +9,7 @@ list.files(getwd(), 'fims')
 
 rnorm_wrapper<-function(){
   set.seed(processR.rank)
-  return(rnorm(n=168, mean = 50, sd = processR.rank))
+  return(rnorm(n=10, mean = 50, sd = processR.rank))
 }
 
  
@@ -26,6 +26,7 @@ for (i in 1:length(pool)){#processR::HardwareConcurrency()) {
   print(pool[[i]]$pid() )
 }
 
+results<-list()
 
 print("waiting...")
 for (j in 1:10) {
@@ -38,10 +39,11 @@ for (j in 1:10) {
   #get the child's environment
   env<-pool[[j]]$get_environment()
   
-  #access the global "results" list created by the test function
-  print(env[["processR.return"]])
+  #access the process "results" list created by the test function
+  #print(env[["processR.return"]])
+  results[[j]]<-env[["processR.return"]]
 }
-
+print(results)
 print("done.")
 
 env<-pool[[1]]$get_environment()
