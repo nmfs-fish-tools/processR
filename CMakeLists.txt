@@ -22,9 +22,9 @@ MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}")
 
 
 
-EXECUTE_PROCESS(
-		COMMAND R "--slave" "--no-save" "-e" "cat(R.home())"
-		OUTPUT_VARIABLE R_HOME)
+#EXECUTE_PROCESS(
+#		COMMAND R "--slave" "--no-save" "-e" "cat(R.home())"
+#		OUTPUT_VARIABLE R_HOME)
 
 MESSAGE(STATUS "R_HOME is ${R_HOME}")
 
@@ -32,9 +32,9 @@ SET(R_INCLUDE ${R_HOME}/include)
 include_directories("${R_INCLUDE}")
 		
 		
-EXECUTE_PROCESS(
-		COMMAND R "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))"
-		OUTPUT_VARIABLE R_USER)
+#EXECUTE_PROCESS(
+#		COMMAND R "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))"
+#		OUTPUT_VARIABLE R_USER)
 
 MESSAGE(STATUS "R_USER is ${R_USER}")
 

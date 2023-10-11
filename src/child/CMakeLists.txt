@@ -12,12 +12,6 @@ set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 
 include(FetchContent)
 
-# Set up Rcpp
-FetchContent_Declare(
-  rcpp
-  URL https://github.com/RcppCore/Rcpp/archive/refs/tags/1.0.8.zip
-)
-FetchContent_MakeAvailable(rcpp)
 
 MESSAGE(STATUS "Looking for R executable")
 
@@ -28,13 +22,13 @@ MESSAGE(STATUS "Looking for R executable")
 MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}") 
 
 
-EXECUTE_PROCESS(
-		COMMAND R "--slave" "--no-save" "-e" "cat(R.home())"
-		OUTPUT_VARIABLE R_HOME)
+#EXECUTE_PROCESS(
+#		COMMAND R "--slave" "--no-save" "-e" "cat(R.home())"
+#		OUTPUT_VARIABLE R_HOME)
 		
-		EXECUTE_PROCESS(
-		COMMAND R "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))"
-		OUTPUT_VARIABLE R_USER)
+#		EXECUTE_PROCESS(
+#		COMMAND R "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))"
+#		OUTPUT_VARIABLE R_USER)
 
 MESSAGE(STATUS "R_USER is ${R_USER}")
 
