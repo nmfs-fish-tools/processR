@@ -3,9 +3,9 @@ set -e
 
 which cmake
 
-which R
-RHOME=$(R "--slave" "--no-save" "-e" "cat(R.home())")
-RUSER=$(R "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))")
+RBINARY=$(which R)
+RHOME=$(${RBINARY} "--slave" "--no-save" "-e" "cat(R.home())")
+RUSER=$(${RBINARY} "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))")
 echo ${RHOME}
 echo ${RUSER}
 rm -rf _builds
