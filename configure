@@ -3,19 +3,12 @@ set -e
 
 which cmake
 
-RBINARY=$(which R)
-RHOME=$(${RBINARY} "--slave" "--no-save" "-e" "cat(R.home())")
-RUSER=$(${RBINARY} "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))")
-echo ${RHOME}
-echo ${RUSER}
 rm -rf _builds
 
 cmake -H. -B_builds \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=_install \
-    -DR_USER=${RUSER} \
-    -DR_HOME=${RHOME} \
     -DCMAKE_SHARED_LIBRARY_PREFIX_CXX=""
 
 
@@ -31,8 +24,6 @@ cmake -H. -B_builds \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=_install \
-    -DR_USER=${RUSER} \
-    -DR_HOME=${RHOME} \
     -DCMAKE_SHARED_LIBRARY_PREFIX_CXX=""
 
 cmake --build _builds --target install --config Release
