@@ -61,7 +61,14 @@ ELSEIF(EXISTS ${R_USER}/Rcpp)
  SET(RCPP_INCLUDE ${RCPP_HOME}/include)
  include_directories("${RCPP_INCLUDE}")
  SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
- 
+
+ELSEIF(EXISTS ${R_HOME}/site-library/Rcpp)
+
+  SET(RCPP_HOME ${R_HOME}/site-library/Rcpp)
+  SET(RCPP_INCLUDE ${RCPP_HOME}/include)
+  include_directories("${RCPP_INCLUDE}")
+  SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
+
 ELSE()
  MESSAGE(FATAL_ERROR  "Package Rcpp not found at ${R_HOME} or ${R_USER}")
 ENDIF()
@@ -79,11 +86,16 @@ ELSEIF(EXISTS ${R_USER}/BH)
  SET(BOOST_HOME ${R_USER}/BH)
  SET(BOOST_INCLUDE ${BOOST_HOME}/include)
  include_directories("${BOOST_INCLUDE}")
+
+ELSEIF(EXISTS ${R_HOME}/site-library/BH)
+
+ SET(BOOST_HOME ${R_HOME}/site-library/BH)
+ SET(BOOST_INCLUDE ${BOOST_HOME}/include)
+ include_directories("${BOOST_INCLUDE}")
  
 ELSE()
  MESSAGE(FATAL_ERROR "Package BH not found")
 ENDIF()
-
 
 SET(LIB_DIR ${CMAKE_INSTALL_PREFIX}/libs)
 file(MAKE_DIRECTORY ${LIB_DIR})
@@ -108,7 +120,7 @@ link_directories(${R_HOME}/lib)
 include(GenerateExportHeader)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}") 
 
-add_library(processR SHARED src/processR.cpp)
+add_library(processR SHARED src/ProcessR.cpp)
 generate_export_header(processR)
 
 
