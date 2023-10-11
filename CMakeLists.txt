@@ -21,11 +21,12 @@ MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}")
 
 
 
+MESSAGE(STATUS "Calling  ${R_EXECUTABLE} --slave --no-save -e cat(R.home()) to find home....") 
 
-execute_process(
-		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(Sys.getenv('R_HOME'))"
-		OUTPUT_VARIABLE R_HOME
-)
+EXECUTE_PROCESS(
+		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(R.home())" 
+		OUTPUT_VARIABLE R_HOME 
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 MESSAGE(STATUS "R_HOME is ${R_HOME}")
 
