@@ -5,23 +5,58 @@ which cmake
 
 
 
-RBIN=$(which R)
 
-echo $(R --version)
 
-RHOME=$(${RBIN} --slave --no-save -e 'cat(R.home())')
-RUSER=$(${RBIN} --slave --no-save -e 'cat(Sys.getenv("R_LIBS_USER"))')
+: ${R_HOME=`R RHOME`}
+if test -z "${R_HOME}"; then
+  echo "could not determine R_HOME"
+  exit 1
+fi
+echo ${R_HOME}
 
-echo ${RHOME}
-echo ${RUSER}
+RBIN="${R_HOME}"/bin/R
+R_BH=$(${RBIN} --slave --no-save -e "cat(find.package('BH'))")
+R_RCPP=$(${RBIN} --slave --no-save -e "cat(find.package('Rcpp'))")
+R_RINSIDE=$(${RBIN} --slave --no-save -e "cat(find.package('RInside'))")
+
+echo ${R_BH}
+echo ${R_RCPP}
+echo ${R_RINSIDE}
+
+echo ${RBIN}
+echo " "
+RUSER=$(${RBIN} --slave --no-save -e 'cat(Sys.getenv("R_LIB_USER"))')
+
+
+
+#echo ${RUSER}
+echo " "
+#: ${R_LIBS_USER=`R LIBS_USER`}
+#if test -z "${R_LIBS_USER}"; then
+#  echo "could not determine R_LIBS_USER"
+#  exit 1
+#fi
+
+echo " "
+echo " "
+#echo ${R_LIBS_USER}
+
+#RHOME=$(${RBIN} --slave --no-save -e 'cat(R.home())')
+
+
+#echo ${RHOME}
+
 rm -rf _builds
 
 cmake -H. -G Ninja -B_builds \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=_install \
-    -DRHOME=${RHOME} \
-    -DRUSER=${RUSER} \
+    -DRHOME=${R_HOME} \
+    -DRBIN=${RBIN} \
+    -DRCPP_HOME=${R_RCPP} \
+    -DBOOST_HOME=${R_BH} \
+    -DRInside_HOME=${R_RINSIDE} \
     -DCMAKE_SHARED_LIBRARY_PREFIX_CXX=""
 
 
@@ -33,12 +68,16 @@ pwd
 cd src/child 
 
 
+
 cmake -H. -G Ninja -B_builds \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=_install \
-    -DRHOME=${RHOME} \
-    -DRUSER=${RUSER} \
+    -DRHOME=${R_HOME} \
+    -DRBIN=${RBIN} \
+    -DRCPP_HOME=${R_RCPP} \
+    -DBOOST_HOME=${R_BH} \
+    -DRInside_HOME=${R_RINSIDE} \
     -DCMAKE_SHARED_LIBRARY_PREFIX_CXX=""
 
 cmake --build _builds --target install --config Release

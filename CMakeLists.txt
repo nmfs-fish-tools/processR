@@ -10,99 +10,19 @@ MESSAGE("generating make files for ${CMAKE_PROJECT_NAME}")
 
 set (CMAKE_CXX_STANDARD 17)
 
-MESSAGE(STATUS "Looking for R executable")
-
-
-		EXECUTE_PROCESS(
-			COMMAND which R 
-			OUTPUT_VARIABLE R_EXECUTABLE)
-
-MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}") 
-
-
-
+#found in config
 MESSAGE(STATUS "RHOME is ${RHOME}")
-MESSAGE(STATUS "RUSER is ${RUSER}")
-
-#EXECUTE_PROCESS(
-#		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(R.home())" 
-#		OUTPUT_VARIABLE RHOME 
-#		OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-
-SET(R_HOME ${RHOME})
-MESSAGE(STATUS "R_HOME is ${R_HOME}")
-
-SET(R_INCLUDE ${R_HOME}/include)
-include_directories("${R_INCLUDE}")
-		
-		
-#EXECUTE_PROCESS(
-#		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))" 
-#		OUTPUT_VARIABLE R_USER 
-#		OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-SET(R_USER ${RUSER})
-MESSAGE(STATUS "R_USER is ${R_USER}")
-
-
-SET(R_LIB ${R_HOME}/lib)
-  find_library(_R_LIBRARY R
-            HINTS ${R_HOME}/lib
-            DOC "R library (example libR.a, libR.dylib, etc.).")
-
-
-
-
-#set Rcpp home
-IF(EXISTS ${R_HOME}/library/Rcpp)
-
- SET(RCPP_HOME ${R_HOME}/library/Rcpp)
+MESSAGE(STATUS "RCPP_HOME is ${RCPP_HOME}")
+MESSAGE(STATUS "BOOST_HOME is ${BOOST_HOME}")
+MESSAGE(STATUS "RInside_HOME is ${RInside_HOME}")
+ SET(R_INCLUDE ${RHOME}/include)
+ include_directories( ${R_INCLUDE})
+ SET(R_LIB ${RHOME}/lib)
  SET(RCPP_INCLUDE ${RCPP_HOME}/include)
  include_directories("${RCPP_INCLUDE}")
  SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
- 
-ELSEIF(EXISTS ${R_USER}/Rcpp)
-
- SET(RCPP_HOME ${R_USER}/Rcpp)
- SET(RCPP_INCLUDE ${RCPP_HOME}/include)
- include_directories("${RCPP_INCLUDE}")
- SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
-
-ELSEIF(EXISTS ${R_HOME}/site-library/Rcpp)
-
-  SET(RCPP_HOME ${R_HOME}/site-library/Rcpp)
-  SET(RCPP_INCLUDE ${RCPP_HOME}/include)
-  include_directories("${RCPP_INCLUDE}")
-  SET(_LIB_RCPP ${RCPP_HOME}/libs/Rcpp.so)
-
-ELSE()
- MESSAGE(FATAL_ERROR  "Package Rcpp not found at ${R_HOME} or ${R_USER}")
-ENDIF()
-
-
-#set boost home
-IF(EXISTS ${R_HOME}/library/BH)
-
- SET(BOOST_HOME ${R_HOME}/library/BH)
  SET(BOOST_INCLUDE ${BOOST_HOME}/include)
  include_directories("${BOOST_INCLUDE}")
-
-ELSEIF(EXISTS ${R_USER}/BH)
-
- SET(BOOST_HOME ${R_USER}/BH)
- SET(BOOST_INCLUDE ${BOOST_HOME}/include)
- include_directories("${BOOST_INCLUDE}")
-
-ELSEIF(EXISTS ${R_HOME}/site-library/BH)
-
- SET(BOOST_HOME ${R_HOME}/site-library/BH)
- SET(BOOST_INCLUDE ${BOOST_HOME}/include)
- include_directories("${BOOST_INCLUDE}")
- 
-ELSE()
- MESSAGE(FATAL_ERROR "Package BH not found")
-ENDIF()
 
 SET(LIB_DIR ${CMAKE_INSTALL_PREFIX}/libs)
 file(MAKE_DIRECTORY ${LIB_DIR})
