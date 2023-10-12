@@ -36,6 +36,11 @@ MESSAGE(STATUS "BOOST_INCLUDE is ${BOOST_INCLUDE}")
 link_directories(${RCPP_HOME}/libs)
 link_directories(${R_HOME}/lib)
 
+SET(R_LIB ${R_HOME}/lib)
+  find_library(_R_LIBRARY R
+            HINTS ${R_HOME}/lib
+            DOC "R library (example libR.a, libR.dylib, etc.).")
+
 #find boost
 #find_package( Boost REQUIRED COMPONENTS program_options regex )
 #include_directories( ${Boost_INCLUDE_DIRS} )

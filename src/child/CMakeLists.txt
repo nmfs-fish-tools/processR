@@ -16,6 +16,8 @@ MESSAGE(STATUS "RHOME is ${RHOME}")
 MESSAGE(STATUS "RCPP_HOME is ${RCPP_HOME}")
 MESSAGE(STATUS "BOOST_HOME is ${BOOST_HOME}")
 MESSAGE(STATUS "RInside_HOME is ${RInside_HOME}")
+SET(_LIB_RINSIDE ${RInside_HOME}/lib/libRInside.a)
+SET(RINSIDE_INCLUDE ${RInside_HOME}/include)
  SET(R_INCLUDE ${RHOME}/include)
   include_directories( ${R_INCLUDE})
  SET(R_LIB ${RHOME}/lib)
@@ -39,12 +41,17 @@ link_directories(${RINSIDE_HOME}/libs)
 #link_directories(${RCPP_HOME}/libs)
 link_directories(${R_HOME}/lib)
 
+SET(R_LIB ${R_HOME}/lib)
+  find_library(_R_LIBRARY R
+            HINTS ${R_HOME}/lib
+            DOC "R library (example libR.a, libR.dylib, etc.).")
+
 #find boost
 #find_package( Boost REQUIRED COMPONENTS program_options regex )
-#include_directories( ${Boost_INCLUDE_DIRS} )
-#include_directories( ${RCPP_INCLUDE} )
-#include_directories( ${RINSIDE_INCLUDE} )
-#include_directories( ${R_INCLUDE} )
+include_directories( ${Boost_INCLUDE_DIRS} )
+include_directories( ${RCPP_INCLUDE} )
+include_directories( ${RINSIDE_INCLUDE} )
+include_directories( ${R_INCLUDE} )
 
 
 
@@ -62,12 +69,12 @@ add_executable(rchild rchild.cpp )
 
 target_link_libraries(rchild ${_R_LIBRARY})
 #target_link_libraries(rchild ${_LIB_RCPP})
-target_link_libraries(rchild ${RINSIDE_HOME}/lib/libRInside.a)
+target_link_libraries(rchild ${RInside_HOME}/lib/libRInside.a)
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
+set(RINSIDE_LIB ${RInside_HOME}/lib/libRInside.a)
 #set(CMAKE_SHARED_LINKER_FLAGS "-l${_R_LIBRARY} -L${${RCPP_HOME}/libs}")
-set(CMAKE_EXE_LINKER_FLAGS " -L${RINSIDE_HOME}/lib")
+set(CMAKE_EXE_LINKER_FLAGS " -L${RInside_HOME}/lib")
 
 
 install(TARGETS rchild DESTINATION bin)

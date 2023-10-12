@@ -69,7 +69,7 @@ cd src/child
 
 
 
-cmake -H. -G Ninja -B_builds \
+cmake -H. -B_builds \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=_install \
@@ -86,7 +86,8 @@ cd ../..
 
 cp _install/lib/processR.so libs/processR.so || echo "Failed: processR.so -> src"
 cp _install/libs/processR.dylib inst/libs/processR.so || echo "Failed: processR.dylib -> src"
-cp -a src/child/_install/bin/. inst/bin || echo "Failed: rchild -> bin"
+cp -a src/child/_install/bin/rchild inst/bin/rchild || echo "Failed: rchild -> bin"
+cp -a src/child/_install/bin/rchild.exe inst/bin/rchild.exe || echo "Failed: rchild -> bin"
 
 #clean up
 rm -r src/child/_install
