@@ -5,3 +5,6 @@
 src/*.o
 src/*.so
 src/*.dll
+_builds/
+_install/
+.DS_Store
