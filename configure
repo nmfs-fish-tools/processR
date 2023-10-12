@@ -3,16 +3,20 @@ set -e
 
 which cmake
 
+
+
 RBIN=$(which R)
 
-RHOME=$(${RBIN} "--slave" "-e" 'cat(R.home())')
-RUSER=$(${RBIN} "--slave" "--no-save" "-e" 'cat(Sys.getenv("R_LIBS_USER"))')
+echo R --version
+
+RHOME=$(${RBIN} --slave --no-save -e 'cat(R.home())')
+RUSER=$(${RBIN} --slave --no-save -e 'cat(Sys.getenv("R_LIBS_USER"))')
 
 echo ${RHOME}
 echo ${RUSER}
 rm -rf _builds
 
-cmake -H. -B_builds \
+cmake -H. -G Ninja -B_builds \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=_install \
@@ -29,7 +33,7 @@ pwd
 cd src/child 
 
 
-cmake -H. -B_builds \
+cmake -H. -G Ninja -B_builds \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=_install \

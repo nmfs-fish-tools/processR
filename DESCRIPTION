@@ -14,7 +14,7 @@ Imports:
     methods,
     Rcpp (>= 1.0.10),
     RInside
-LinkingTo: 
+LinkingTo:
     Rcpp,
     RInside
 Encoding: UTF-8

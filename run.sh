@@ -1,4 +1,4 @@
-#!/bin/bash -e -verbose
+#!/bin/bash -e 
 
 set -x
 
