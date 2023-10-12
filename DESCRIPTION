@@ -1,22 +1,19 @@
 Package: processR
 Title: Concurrent processing in R
 Version: 1.0
-Authors@R:
+Authors@R: 
     person("Matthew", "Supernaw", , "matthew.supernaw@noaa.gov", role = c("aut", "cre"))
 Description: A multi-process package for R.
 License: GPL (>= 2)
 URL: https://github.com/nmfs-fish-tools/processR
 BugReports: https://github.com/nmfs-fish-tools/processR/issues
-Depends:
-    R (>= 4.0.0)
-Imports: 
-    BH,
-    methods,
-    Rcpp (>= 1.0.10),
-    RInside
-LinkingTo:
-    Rcpp,
-    RInside
+Depends: R (>= 4.0.0)
+Imports: BH, methods, Rcpp (>= 1.0.10), RInside
+LinkingTo: Rcpp, RInside
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 SystemRequirements: C++17
+NeedsCompilation: yes
+Packaged: 2023-10-12 17:23:54 UTC; mattadmin
+Author: Matthew Supernaw [aut, cre]
+Maintainer: Matthew Supernaw <matthew.supernaw@noaa.gov>

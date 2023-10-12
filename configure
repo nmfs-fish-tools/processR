@@ -7,7 +7,7 @@ which cmake
 
 RBIN=$(which R)
 
-echo R --version
+echo $(R --version)
 
 RHOME=$(${RBIN} --slave --no-save -e 'cat(R.home())')
 RUSER=$(${RBIN} --slave --no-save -e 'cat(Sys.getenv("R_LIBS_USER"))')
