@@ -21,24 +21,28 @@ MESSAGE(STATUS "R_EXECUTABLE is ${R_EXECUTABLE}")
 
 
 
-MESSAGE(STATUS "Calling  ${R_EXECUTABLE} --slave --no-save -e cat(R.home()) to find home....") 
+MESSAGE(STATUS "RHOME is ${RHOME}")
+MESSAGE(STATUS "RUSER is ${RUSER}")
 
-EXECUTE_PROCESS(
-		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(R.home())" 
-		OUTPUT_VARIABLE R_HOME 
-		OUTPUT_STRIP_TRAILING_WHITESPACE)
+#EXECUTE_PROCESS(
+#		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(R.home())" 
+#		OUTPUT_VARIABLE RHOME 
+#		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+
+SET(R_HOME ${RHOME})
 MESSAGE(STATUS "R_HOME is ${R_HOME}")
 
 SET(R_INCLUDE ${R_HOME}/include)
 include_directories("${R_INCLUDE}")
 		
 		
-EXECUTE_PROCESS(
-		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))" 
-		OUTPUT_VARIABLE R_USER 
-		OUTPUT_STRIP_TRAILING_WHITESPACE)
+#EXECUTE_PROCESS(
+#		COMMAND ${R_EXECUTABLE} "--slave" "--no-save" "-e" "cat(Sys.getenv('R_LIBS_USER'))" 
+#		OUTPUT_VARIABLE R_USER 
+#		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+SET(R_USER ${RUSER})
 MESSAGE(STATUS "R_USER is ${R_USER}")
 
 
