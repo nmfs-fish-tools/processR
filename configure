@@ -48,7 +48,7 @@ echo " "
 
 rm -rf _builds
 
-cmake -H. -G Ninja -B_builds \
+cmake -H. -B_builds \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=_install \
