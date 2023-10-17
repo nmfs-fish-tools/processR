@@ -3,10 +3,10 @@
 #include <Rcpp.h>
 #include <sstream>
 #include <chrono>
-#include <boost/process.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-#include <boost/interprocess/managed_shared_memory.hpp>
+#include "../inst/include/boost/process.hpp"
+#include "../inst/include/boost/interprocess/shared_memory_object.hpp"
+#include "../inst/include/boost/interprocess/mapped_region.hpp"
+#include "../inst/include/boost/interprocess/managed_shared_memory.hpp"
 
 
 namespace bp = boost::process;
