@@ -12,9 +12,9 @@
 namespace bp = boost::process;
 namespace bip = boost::interprocess;
 
-std::string getRLibraryPath() {
-  Rcpp::Function SysGetenv("Sys.getenv");
-  Rcpp::CharacterVector result = SysGetenv("R_LIBS_USER");
+std::string getprocessRPath() {
+  Rcpp::Function find_package("find.package");
+  Rcpp::CharacterVector result = find_package("processR");
   if (result.size() == 1) {
     return Rcpp::as<std::string>(result[0]);
   } else {
@@ -26,8 +26,8 @@ std::string getRLibraryPath() {
 int check(std::string ss_env_name, std::string ss_fun_name) {
   bp::ipstream parent_input;
   bp::opstream parent_output;
-  std::cout << "check....\n";
-  std::cout << ss_env_name << "\n";
+  Rcpp::Rcout << "check....\n";
+  Rcpp::Rcout << ss_env_name << "\n";
   
   
   bip::shared_memory_object env_shm(bip::open_only, ss_env_name.c_str(), bip::read_only);
@@ -56,7 +56,7 @@ int check(std::string ss_env_name, std::string ss_fun_name) {
   int errorOccurred;
   SEXP ret = R_tryEval(unser, R_GlobalEnv, &errorOccurred);
   if (errorOccurred) {
-    std::cout << "Error occurred unserializing environment." << std::endl;
+    Rcpp::Rcout << "Error occurred unserializing environment." << std::endl;
   }
   
   
@@ -74,21 +74,21 @@ int check(std::string ss_env_name, std::string ss_fun_name) {
   int errorOccurred2;
   SEXP ret2 = R_tryEval(unser2, R_GlobalEnv, &errorOccurred2);
   if (errorOccurred2) {
-    std::cout << "Error occurred unserializing function." << std::endl;
+    Rcpp::Rcout << "Error occurred unserializing function." << std::endl;
   }
   
   Rcpp::Function function = Rcpp::as<Rcpp::Function>(ret2);
   
   Rcpp::List l = Rcpp::as<Rcpp::List>(environment.ls(true));
   
-  std::cout << "print env->\n";
+  Rcpp::Rcout << "print env->\n";
   for (int i = 0; i < l.size(); i++) {
-    std::cout << Rcpp::as<std::string>(l[i]) << "\n";
+    Rcpp::Rcout << Rcpp::as<std::string>(l[i]) << "\n";
   }
-  std::cout << "->done\n" << std::flush;
+  Rcpp::Rcout << "->done\n" << std::flush;
   function();
   
-  std::cout << "done check.\n\n\n" << std::flush;
+  Rcpp::Rcout << "done check.\n\n\n" << std::flush;
   
   
   
@@ -171,7 +171,7 @@ Rcpp::Environment readEnvironmentFromSharedMemory(const std::string& shared_memo
     int errorOccurred;
     SEXP ret = R_tryEval(unser, R_GlobalEnv, &errorOccurred);
     if (errorOccurred) {
-      std::cout << "Error occurred unserializing environment." << std::endl;
+      Rcpp::Rcout << "Error occurred unserializing environment." << std::endl;
     }
     
     
@@ -248,15 +248,15 @@ public:
     std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
     std::stringstream ss_path;
     
-    ss_path<<getRLibraryPath()<<"/processR/bin";
+    ss_path<<getprocessRPath()<<"/bin";
     if (std::filesystem::exists(ss_path.str()) && std::filesystem::is_directory(ss_path.str())) {
       ss_path<<"/rchild";
       path = ss_path.str();
     } else {
-      std::cout << "Library directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
+      Rcpp::Rcout << "Library directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
     }
     
- 
+    
     std::stringstream sm_name_env;
     std::stringstream sm_name_env_ret;
     std::stringstream sm_name_fun;
@@ -265,8 +265,8 @@ public:
     sm_name_fun << "processR_sm_fun_" << t<<"_"<<rank;
     sm_name_env_ret<< sm_name_env.str()<<"_ret";
     this->sm_name_m = sm_name_env_ret.str();
-    // std::cout << sm_name_env.str() << "\n\n";
- 
+    // Rcpp::Rcout << sm_name_env.str() << "\n\n";
+    
     
     // this->fun = fun;
     // this->env = E;
@@ -280,10 +280,10 @@ public:
     writeToSharedMemory(sm_name_fun.str(), serialized_fun);
     
     // Launch the child process
-
+    
     this->child_m = std::make_shared<boost::process::child>(path,
                                                             boost::process::std_in < this->child_input,
-                                                          boost::process::std_out > this->child_output
+                                                            boost::process::std_out > this->child_output
     );
     
     child_input << rank;
@@ -301,7 +301,7 @@ public:
     this->collect();
     this->child_m->join();
     if(this->is_r_process){
-        this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
+      this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
     }
   }
   
@@ -385,7 +385,7 @@ public:
 // [[Rcpp::export]]
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
   
-  std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
+  std::string path = getprocessRPath() +"bin/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
   
   
   std::stringstream sm_name_env;
@@ -393,7 +393,7 @@ void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
   std::time_t t = std::time(0);
   sm_name_env << "processR_sm_env_" << t;
   sm_name_fun << "processR_sm_fun_" << t;
-  std::cout << sm_name_env.str() << "\n\n";
+  Rcpp::Rcout << sm_name_env.str() << "\n\n";
   
   //Copy environment to shared memory
   Rcpp::Environment E = copyEnvironment(env);
@@ -428,7 +428,7 @@ void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
   
   std::string line;
   while (child_output && std::getline(child_output, line) && !line.empty()) {
-    std::cout << line << std::endl;
+    Rcpp::Rcout << line << std::endl;
   }
   
   // // Wait for the child process to finish
