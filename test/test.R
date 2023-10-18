@@ -1,7 +1,9 @@
+
+find.package('processR')
 library(processR)
 library(Rcpp)
 library(RInside)
-library(rslurm)
+#library(rslurm)
 list.files(getwd(), 'fims')
 
 
@@ -29,7 +31,7 @@ for (i in 1:length(pool)){#processR::HardwareConcurrency()) {
 results<-list()
 
 print("waiting...")
-for (j in 1:10) {
+for (j in 1:length(pool)) {
   #wait for the children to finish
   pool[[j]]$wait()
   

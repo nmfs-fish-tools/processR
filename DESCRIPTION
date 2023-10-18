@@ -9,7 +9,7 @@ URL: https://github.com/nmfs-fish-tools/processR
 BugReports: https://github.com/nmfs-fish-tools/processR/issues
 Depends: R (>= 4.0.0)
 Imports: BH, methods, Rcpp (>= 1.0.10), RInside
-LinkingTo: Rcpp, RInside
+LinkingTo: Rcpp, RInside, BH
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 SystemRequirements: C++17

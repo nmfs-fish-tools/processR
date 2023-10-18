@@ -3,18 +3,18 @@
 #include <Rcpp.h>
 #include <sstream>
 #include <chrono>
-#include "../inst/include/boost/process.hpp"
-#include "../inst/include/boost/interprocess/shared_memory_object.hpp"
-#include "../inst/include/boost/interprocess/mapped_region.hpp"
-#include "../inst/include/boost/interprocess/managed_shared_memory.hpp"
+#include <boost/process.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/managed_shared_memory.hpp>
 
 
 namespace bp = boost::process;
 namespace bip = boost::interprocess;
 
-std::string getRLibraryPath() {
-  Rcpp::Function SysGetenv("Sys.getenv");
-  Rcpp::CharacterVector result = SysGetenv("R_LIBS_USER");
+std::string getprocessRPath() {
+  Rcpp::Function find_package("find.package");
+  Rcpp::CharacterVector result = find_package("processR");
   if (result.size() == 1) {
     return Rcpp::as<std::string>(result[0]);
   } else {
@@ -248,7 +248,7 @@ public:
     std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
     std::stringstream ss_path;
     
-    ss_path<<getRLibraryPath()<<"/processR/bin";
+    ss_path<<getprocessRPath()<<"/bin";
     if (std::filesystem::exists(ss_path.str()) && std::filesystem::is_directory(ss_path.str())) {
       ss_path<<"/rchild";
       path = ss_path.str();
@@ -385,7 +385,7 @@ public:
 // [[Rcpp::export]]
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
   
-  std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
+  std::string path = getprocessRPath() +"bin/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
   
   
   std::stringstream sm_name_env;
