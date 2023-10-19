@@ -7,6 +7,10 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/managed_shared_memory.hpp>
+#include <boost/process.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/managed_shared_memory.hpp>
 
 
 namespace bp = boost::process;
@@ -256,7 +260,7 @@ public:
      Rcpp::Rcout << "Library directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
     }
     
- 
+    
     std::stringstream sm_name_env;
     std::stringstream sm_name_env_ret;
     std::stringstream sm_name_fun;
@@ -265,8 +269,8 @@ public:
     sm_name_fun << "processR_sm_fun_" << t<<"_"<<rank;
     sm_name_env_ret<< sm_name_env.str()<<"_ret";
     this->sm_name_m = sm_name_env_ret.str();
-    // std::cout << sm_name_env.str() << "\n\n";
- 
+    // Rcpp::Rcout << sm_name_env.str() << "\n\n";
+    
     
     // this->fun = fun;
     // this->env = E;
@@ -280,10 +284,10 @@ public:
     writeToSharedMemory(sm_name_fun.str(), serialized_fun);
     
     // Launch the child process
-
+    
     this->child_m = std::make_shared<boost::process::child>(path,
                                                             boost::process::std_in < this->child_input,
-                                                          boost::process::std_out > this->child_output
+                                                            boost::process::std_out > this->child_output
     );
     
     child_input << rank;
@@ -301,7 +305,7 @@ public:
     this->collect();
     this->child_m->join();
     if(this->is_r_process){
-        this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
+      this->environment = readEnvironmentFromSharedMemory(sm_name_m); 
     }
   }
   
