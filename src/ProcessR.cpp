@@ -6,11 +6,13 @@
 #include <boost/process.hpp>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
-#  define BOOST_USE_WINDOWS_H
-#pragma comment(lib, "ws2_32.lib")
+// #  define BOOST_USE_WINDOWS_H
+// #pragma comment(lib, "ws2_32.lib")
+#define _glibcxx_use_cxx11_abi=0
 #elif defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
-#  define BOOST_USE_WINDOWS_H
-#pragma comment(lib, "ws2_32.lib")
+// #  define BOOST_USE_WINDOWS_H
+// #pragma comment(lib, "ws2_32.lib")
+#define _glibcxx_use_cxx11_abi=0
 #endif
 
 #include <boost/interprocess/shared_memory_object.hpp>
