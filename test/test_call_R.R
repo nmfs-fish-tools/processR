@@ -5,7 +5,9 @@ library(RInside)
 
 rnorm_wrapper<-function(){
   set.seed(processR.rank)
-  return(rnorm(n=10, mean = 50, sd = processR.rank))
+  ret<-rnorm(n=10, mean = 50, sd = processR.rank)
+  cat(ret)
+  return(ret)
 }
 
 # env__ret = processR::CallRProcess(rnorm_wrapper, environment())
@@ -19,6 +21,7 @@ for (i in 1:length(pool)){#processR::HardwareConcurrency()) {
   #creat a new child
   ###pool[[i]] <- new(processR::Process)
   #pass the entry function, environment, and child rank
+ 
   pool[[i]]$start(rnorm_wrapper, environment(), i)
   print(pool[[i]]$pid() )
 }

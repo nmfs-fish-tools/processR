@@ -1,9 +1,43 @@
 #include <filesystem>
+#include <fstream>
 #include <thread>
 #include <Rcpp.h>
 #include <sstream>
 #include <chrono>
 #include <boost/process.hpp>
+
+#if defined(linux) || defined(__linux) || defined(__linux__) || defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__)
+#define P_POSIX
+#include <unistd.h>  
+#include <pwd.h>  
+#endif  
+
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
+#define P_WINDOWS
+#include<Windows.h>  
+#endif  
+
+std::string getUserName() {
+#if defined P_POSIX
+  uid_t userid;
+  struct passwd* pwd;
+  userid = getuid();
+  pwd = getpwuid(userid);
+  return pwd->pw_name;
+  
+#elif defined P_WINDOWS
+  const int MAX_LEN = 100;
+  char szBuffer[MAX_LEN];
+  DWORD len = MAX_LEN;
+  if (GetUserName(szBuffer, &len))
+    return szBuffer;
+  
+#else
+  return "some_user";
+#endif  
+}
+
+
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 // #  define BOOST_USE_WINDOWS_H
@@ -280,6 +314,7 @@ public:
   std::thread thread_object;
   std::stringstream message;
   bool is_r_process = true;
+  bool write_log = false;
   
   Process(const Process& other) :
     child_m((other.child_m)), rank(other.rank), fun(other.fun), env(other.env),is_r_process(other.is_r_process) {
@@ -429,6 +464,14 @@ public:
     std::string line;
     while (this->child_output && std::getline(this->child_output, line) && !line.empty()) {
       this->message << line << std::endl;
+    }
+    
+    if(this->write_log){
+      std::stringstream ss;
+      ss<<getUserName()<<"_processR_"<<this->pid()<<".log";
+      std::ofstream out(ss.str().c_str());
+      out << this->message.str() <<"\n";
+      out.close();
     }
   }
   
@@ -656,6 +699,7 @@ RCPP_EXPOSED_CLASS(Process)
     .method("get_environment", &Process::get_environment, "Get the return R environment.")
     .method("read_line", &Process::read_line, "Read a line from the process out stream.")
     .method("write", &Process::write, "Write to the process in stream.")
+    .field("write_log", &Process::write_log, "Write to the process in stream to log.")
     .field("rank", &Process::rank, "The user assigned rank.");
   }
 
