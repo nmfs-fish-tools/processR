@@ -21,6 +21,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// writeToSharedMemory
+void writeToSharedMemory(const std::string& shared_memory_name, const Rcpp::RawVector& serialized_env);
+RcppExport SEXP _processR_writeToSharedMemory(SEXP shared_memory_nameSEXP, SEXP serialized_envSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type shared_memory_name(shared_memory_nameSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::RawVector& >::type serialized_env(serialized_envSEXP);
+    writeToSharedMemory(shared_memory_name, serialized_env);
+    return R_NilValue;
+END_RCPP
+}
 // readEnvironmentFromSharedMemory
 Rcpp::Environment readEnvironmentFromSharedMemory(const std::string& shared_memory_name);
 RcppExport SEXP _processR_readEnvironmentFromSharedMemory(SEXP shared_memory_nameSEXP) {
@@ -41,6 +52,29 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::Environment >::type env(envSEXP);
     RunProcess(fun, env);
     return R_NilValue;
+END_RCPP
+}
+// RunChild
+void RunChild(const std::string& fun, const std::string& env);
+RcppExport SEXP _processR_RunChild(SEXP funSEXP, SEXP envSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type fun(funSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type env(envSEXP);
+    RunChild(fun, env);
+    return R_NilValue;
+END_RCPP
+}
+// CallRProcess
+Rcpp::Environment CallRProcess(const Rcpp::Function& fun, const Rcpp::Environment& env);
+RcppExport SEXP _processR_CallRProcess(SEXP funSEXP, SEXP envSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::Function& >::type fun(funSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Environment& >::type env(envSEXP);
+    rcpp_result_gen = Rcpp::wrap(CallRProcess(fun, env));
+    return rcpp_result_gen;
 END_RCPP
 }
 // HardwareConcurrency
@@ -69,8 +103,11 @@ RcppExport SEXP _rcpp_module_boot_processR();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_processR_copyEnvironment", (DL_FUNC) &_processR_copyEnvironment, 1},
+    {"_processR_writeToSharedMemory", (DL_FUNC) &_processR_writeToSharedMemory, 2},
     {"_processR_readEnvironmentFromSharedMemory", (DL_FUNC) &_processR_readEnvironmentFromSharedMemory, 1},
     {"_processR_RunProcess", (DL_FUNC) &_processR_RunProcess, 2},
+    {"_processR_RunChild", (DL_FUNC) &_processR_RunChild, 2},
+    {"_processR_CallRProcess", (DL_FUNC) &_processR_CallRProcess, 2},
     {"_processR_HardwareConcurrency", (DL_FUNC) &_processR_HardwareConcurrency, 0},
     {"_processR_CreateProcessPool", (DL_FUNC) &_processR_CreateProcessPool, 1},
     {"_rcpp_module_boot_processR", (DL_FUNC) &_rcpp_module_boot_processR, 0},

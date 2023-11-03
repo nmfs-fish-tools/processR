@@ -38,6 +38,20 @@ std::string getprocessRPath() {
   }
 }
 
+std::string getRPath(){
+  Rcpp::Function find_package("Sys.getenv");
+  Rcpp::CharacterVector result = find_package("R_HOME");
+  if (result.size() == 1) {
+    std::stringstream ss;
+    ss<<Rcpp::as<std::string>(result[0])<<"/bin/R";
+    return ss.str();
+  } else {
+    // Handle the case where the environment variable is not found or there are multiple paths
+    return ""; // You can return an appropriate default value or handle the error as needed
+  }
+  
+}
+
 int check(std::string ss_env_name, std::string ss_fun_name) {
   bp::ipstream parent_input;
   bp::opstream parent_output;
@@ -129,6 +143,7 @@ Rcpp::Environment copyEnvironment(const Rcpp::Environment& sourceEnv) {
   return newEnv;
 }
 
+// [[Rcpp::export]]
 void writeToSharedMemory(const std::string& shared_memory_name, const Rcpp::RawVector& serialized_env) {
   try {
     boost::interprocess::shared_memory_object::remove(shared_memory_name.c_str());
@@ -202,6 +217,38 @@ Rcpp::Environment readEnvironmentFromSharedMemory(const std::string& shared_memo
   }
 }
 
+Rcpp::Function readFunctionFromSharedMemory(const std::string& name) {
+  
+  bip::shared_memory_object fun_shm(bip::open_only, name.c_str(), bip::read_only);
+  bip::mapped_region fun_region(fun_shm, bip::read_only);
+  
+  
+  
+  const unsigned char* sharedCharArray_fun = static_cast<const unsigned char*> (fun_region.get_address());
+  Rcpp::RawVector serialized_fun(fun_region.get_size());
+  std::memcpy(serialized_fun.begin(), sharedCharArray_fun, fun_region.get_size());
+  
+  SEXP arg2;
+  PROTECT(arg2 = Rf_allocVector(RAWSXP, serialized_fun.size()));
+  memcpy(RAW(arg2), &serialized_fun[0], serialized_fun.size() * sizeof (unsigned char));
+  
+  SEXP unser2;
+  PROTECT(unser2 = Rf_lang2(Rf_install("unserialize"), arg2));
+  
+  
+  int errorOccurred2;
+  SEXP ret2 = R_tryEval(unser2, R_GlobalEnv, &errorOccurred2);
+  if (errorOccurred2) {
+    std::cout << "Error occurred unserializing function." << std::endl;
+  }
+  
+  UNPROTECT(2);
+  Rcpp::Function function = Rcpp::as<Rcpp::Function>(ret2);
+  
+  return function;
+  
+}
+
 void copyEnvironment(const Rcpp::Environment& sourceEnv, Rcpp::Environment& newEnv) {
   // Rcpp::Environment newEnv = Rcpp::Environment::global_env();
   
@@ -217,6 +264,8 @@ void copyEnvironment(const Rcpp::Environment& sourceEnv, Rcpp::Environment& newE
   }
   
 }
+
+Rcpp::Environment CallRProcess(const Rcpp::Function& fun, const Rcpp::Environment& env);
 
 class Process {
   std::shared_ptr<boost::process::child> child_m;
@@ -256,21 +305,51 @@ public:
   
   void start(const Rcpp::Function& fun, const Rcpp::Environment& env, const int& rank) {
     this->is_r_process = true;
+    // Rcpp::Environment E = copyEnvironment(env);
+    // E.assign("processR.rank", rank);
+    // 
+
     
-    //Copy environment to shared memory
-    Rcpp::Environment E = copyEnvironment(env);
-    E.assign("processR.rank", rank);
-    std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
-    std::stringstream ss_path;
+    // 
+    // //Copy environment to shared memory
+    // Rcpp::Environment E = copyEnvironment(env);
+    // E.assign("processR.rank", rank);
+    // std::string path = "/Users/mattadmin/FIMS-Testing/FIMS-v0100_2/RChild/dist/Debug/GNU-MacOSX/rchild"; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
+    // std::stringstream ss_path;
+    // 
+    // ss_path<<getprocessRPath()<<"/bin";
+    // if (std::filesystem::exists(ss_path.str()) && std::filesystem::is_directory(ss_path.str())) {
+    //   ss_path<<"/rchild";
+    //   path = ss_path.str();
+    // } else {
+    //  Rcpp::Rcout << "Library directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
+    // }
+    // 
+    // 
+    // std::stringstream sm_name_env;
+    // std::stringstream sm_name_env_ret;
+    // std::stringstream sm_name_fun;
+    // std::time_t t = std::time(0);
+    // sm_name_env << "processR_sm_env_" << t<<"_"<<rank;
+    // sm_name_fun << "processR_sm_fun_" << t<<"_"<<rank;
+    // sm_name_env_ret<< sm_name_env.str()<<"_ret";
+    // this->sm_name_m = sm_name_env_ret.str();
+    // // Rcpp::Rcout << sm_name_env.str() << "\n\n";
+    // 
+    // 
+    // // this->fun = fun;
+    // // this->env = E;
+    // 
+    // Rcpp::Environment baseEnv("package:base");
+    // Rcpp::Function serializeFunc = baseEnv["serialize"];
+    // Rcpp::RawVector serialized_env = serializeFunc(E, R_NilValue);
+    // Rcpp::RawVector serialized_fun = serializeFunc(fun, R_NilValue);
+    // 
+    // writeToSharedMemory(sm_name_env.str(), serialized_env);
+    // writeToSharedMemory(sm_name_fun.str(), serialized_fun);
+    // 
     
-    ss_path<<getprocessRPath()<<"/bin";
-    if (std::filesystem::exists(ss_path.str()) && std::filesystem::is_directory(ss_path.str())) {
-      ss_path<<"/rchild";
-      path = ss_path.str();
-    } else {
-     Rcpp::Rcout << "Library directory \""<<ss_path.str()<<" does not exist.\"" << std::endl;
-    }
-    
+    std::string path = getRPath() +" --slave --no-save -e "; 
     
     std::stringstream sm_name_env;
     std::stringstream sm_name_env_ret;
@@ -280,11 +359,10 @@ public:
     sm_name_fun << "processR_sm_fun_" << t<<"_"<<rank;
     sm_name_env_ret<< sm_name_env.str()<<"_ret";
     this->sm_name_m = sm_name_env_ret.str();
-    // Rcpp::Rcout << sm_name_env.str() << "\n\n";
     
-    
-    // this->fun = fun;
-    // this->env = E;
+    //Copy environment to shared memory
+    Rcpp::Environment E = copyEnvironment(env);
+    E.assign("processR.rank", rank);
     
     Rcpp::Environment baseEnv("package:base");
     Rcpp::Function serializeFunc = baseEnv["serialize"];
@@ -294,19 +372,26 @@ public:
     writeToSharedMemory(sm_name_env.str(), serialized_env);
     writeToSharedMemory(sm_name_fun.str(), serialized_fun);
     
-    // Launch the child process
+    std::stringstream ss;
     
-    this->child_m = std::make_shared<boost::process::child>(path,
+    ss<<path;
+    ss<<"\"library(processR) \n processR::RunChild("<< "\""<< sm_name_fun.str() <<"\", \""<<sm_name_env.str()<<"\")\"";
+    
+    
+    
+    
+    // Launch the child process
+    this->child_m = std::make_shared<boost::process::child>(ss.str(),
                                                             boost::process::std_in < this->child_input,
                                                             boost::process::std_out > this->child_output
     );
-    
+
     child_input << rank;
     child_input.flush();
-    
+
     child_input << sm_name_env.str() << std::endl;
     child_input.flush();
-    
+
     child_input << sm_name_fun.str() << std::endl;
     child_input.flush();
     
@@ -450,6 +535,104 @@ void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
   childProcess.wait();
   
   
+}
+
+
+
+void copyToGlobalEnvironment_(const Rcpp::Environment& sourceEnv) {
+  Rcpp::Environment newEnv = Rcpp::Environment::global_env();
+  
+  Rcpp::CharacterVector names = sourceEnv.ls(true);
+  
+  for (int i = 0; i < names.size(); ++i) {
+    std::string name = Rcpp::as<std::string>(names[i]);
+    //        Rcpp::Symbol symbol(names[i]);
+    SEXP value = sourceEnv[name];
+    
+    // Assign the symbol and its value to the new environment
+    newEnv.assign(name, value);
+  }
+  
+}
+
+
+void copyFromGlobalEnvironment_(Rcpp::Environment& newEnv) {
+  Rcpp::Environment sourceEnv = Rcpp::Environment::global_env();
+  
+  Rcpp::CharacterVector names = sourceEnv.ls(true);
+  
+  for (int i = 0; i < names.size(); ++i) {
+    std::string name = Rcpp::as<std::string>(names[i]);
+    //        Rcpp::Symbol symbol(names[i]);
+    SEXP value = sourceEnv[name];
+    
+    // Assign the symbol and its value to the new environment
+    newEnv.assign(name, value);
+  }
+  
+}
+
+// [[Rcpp::export]]
+void RunChild(const std::string& fun, const std::string& env){
+  Rcpp::Function func = readFunctionFromSharedMemory(fun);
+  Rcpp::Environment environ = readEnvironmentFromSharedMemory(env);
+  copyToGlobalEnvironment_(environ);
+
+  
+  SEXP ret = func();
+  
+  
+  std::stringstream sm_name_env_ret;
+  sm_name_env_ret << env << "_ret";
+  
+  Rcpp::Environment baseEnv("package:base");
+  Rcpp::Function serializeFunc = baseEnv["serialize"];
+  Rcpp::Environment ret_env = Rcpp::new_env(); // = Rcpp::Environment::global_env();
+  copyFromGlobalEnvironment_(ret_env);
+  ret_env.assign("processR.return", ret);
+  Rcpp::RawVector serialized_env = serializeFunc(ret_env, R_NilValue);
+  
+  writeToSharedMemory(sm_name_env_ret.str(), serialized_env);
+}
+
+// [[Rcpp::export]]
+Rcpp::Environment CallRProcess(const Rcpp::Function& fun, const Rcpp::Environment& env){
+  std::string path = getRPath() +" --slave --no-save -e "; //"""/Users/mattadmin/rprojects/processR/src/RRunner.x";
+  
+  
+  std::stringstream sm_name_env;
+  std::stringstream sm_name_fun;
+  std::time_t t = std::time(0);
+  sm_name_env << "processR_sm_env_" << t;
+  sm_name_fun << "processR_sm_fun_" << t;
+  Rcpp::Rcout << sm_name_env.str() << "\n\n";
+  
+  //Copy environment to shared memory
+  Rcpp::Environment E = copyEnvironment(env);
+  
+  
+  Rcpp::Environment baseEnv("package:base");
+  Rcpp::Function serializeFunc = baseEnv["serialize"];
+  Rcpp::RawVector serialized_env = serializeFunc(E, R_NilValue);
+  Rcpp::RawVector serialized_fun = serializeFunc(fun, R_NilValue);
+  
+  writeToSharedMemory(sm_name_env.str(), serialized_env);
+  writeToSharedMemory(sm_name_fun.str(), serialized_fun);
+  
+  std::stringstream ss;
+  
+  ss<<path;
+  ss<<"\"library(processR) \n processR::RunChild("<< "\""<< sm_name_fun.str() <<"\", \""<<sm_name_env.str()<<"\")\"";
+  
+  Rcpp::Rcout <<ss.str()<<"\n";
+  
+  Process p(ss.str());
+  p.wait();
+  Rcpp::Rcout << p.get_message();
+  ss.str("");
+  ss<<sm_name_env.str()<<"_ret";
+  
+ return readEnvironmentFromSharedMemory(ss.str());
 }
 
 RCPP_EXPOSED_CLASS(Process)

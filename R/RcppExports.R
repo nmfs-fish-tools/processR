@@ -5,12 +5,24 @@ copyEnvironment <- function(sourceEnv) {
     .Call(`_processR_copyEnvironment`, sourceEnv)
 }
 
+writeToSharedMemory <- function(shared_memory_name, serialized_env) {
+    invisible(.Call(`_processR_writeToSharedMemory`, shared_memory_name, serialized_env))
+}
+
 readEnvironmentFromSharedMemory <- function(shared_memory_name) {
     .Call(`_processR_readEnvironmentFromSharedMemory`, shared_memory_name)
 }
 
 RunProcess <- function(fun, env) {
     invisible(.Call(`_processR_RunProcess`, fun, env))
+}
+
+RunChild <- function(fun, env) {
+    invisible(.Call(`_processR_RunChild`, fun, env))
+}
+
+CallRProcess <- function(fun, env) {
+    .Call(`_processR_CallRProcess`, fun, env)
 }
 
 HardwareConcurrency <- function() {
