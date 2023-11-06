@@ -5,7 +5,7 @@ library(RInside)
 
 rnorm_wrapper<-function(){
   set.seed(processR.rank)
-  ret<-rnorm(n=10, mean = 50, sd = processR.rank)
+  ret<-rnorm(n=100, mean = 50, sd = processR.rank)
   cat(ret)
   return(ret)
 }
@@ -18,10 +18,6 @@ rnorm_wrapper<-function(){
 pool <- processR::CreateProcessPool()#list()
 
 for (i in 1:length(pool)){#processR::HardwareConcurrency()) {
-  #creat a new child
-  ###pool[[i]] <- new(processR::Process)
-  #pass the entry function, environment, and child rank
- 
   pool[[i]]$start(rnorm_wrapper, environment(), i)
   print(pool[[i]]$pid() )
 }
@@ -30,17 +26,17 @@ results<-list()
 
 print("waiting...")
 for (j in 1:length(pool)) {
+  pool[[j]]$write_log<-FALSE
+  
   #wait for the children to finish
   pool[[j]]$wait()
   
   #print the child output stream
-  cat(pool[[j]]$get_message())
+  # cat(pool[[j]]$get_message())
   
   #get the child's environment
   env<-pool[[j]]$get_environment()
   
   #access the process "results" list created by the test function
-  print(env[["processR.return"]])
-  #print(results[[j]]<-env[["processR.return"]])
-  
+   print(env[["processR.return"]])
 }

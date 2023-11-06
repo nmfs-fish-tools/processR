@@ -524,6 +524,66 @@ public:
 //   return p;
 // }
 
+template<typename CLASS>
+class SharedStorage{
+  
+public:
+  
+  SharedStorage() : data(R_NilValue), token(R_NilValue){}
+  
+  ~SharedStorage(){
+    Rcpp_PreciousRelease(token) ;
+    data = R_NilValue;
+    token = R_NilValue;
+  }
+  
+  inline void set__(SEXP x){
+    if (data != x) {
+      data = x;
+      Rcpp_PreciousRelease(token);
+      token = Rcpp_PreciousPreserve(data);
+    }
+    
+    // calls the update method of CLASS
+    // this is where to react to changes in the underlying SEXP
+    static_cast<CLASS&>(*this).update(data) ;
+  }
+  
+  inline SEXP get__() const {
+    return data ;
+  }
+  
+  inline SEXP invalidate__(){
+    SEXP out = data ;
+    Rcpp_PreciousRelease(token);
+    data = R_NilValue ;
+    token = R_NilValue ;
+    return out ;
+  }
+  
+  template <typename T>
+  inline T& copy__(const T& other){
+    if( this != &other){
+      set__(other.get__());
+    }
+    return static_cast<T&>(*this) ;
+  }
+  
+  inline bool inherits(const char* clazz) const {
+    return ::Rf_inherits( data, clazz) ;
+  }
+  
+  inline operator SEXP() const { return data; }
+  
+  
+private:
+  
+  SEXP data ;
+  SEXP token ;
+  
+  
+};
+
 
 // [[Rcpp::export]]
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
@@ -618,8 +678,8 @@ void copyFromGlobalEnvironment_(Rcpp::Environment& newEnv) {
 // [[Rcpp::export]]
 void RunChild(const std::string& fun, const std::string& env){
   Rcpp::Function func = readFunctionFromSharedMemory(fun);
-  Rcpp::Environment environ = readEnvironmentFromSharedMemory(env);
-  copyToGlobalEnvironment_(environ);
+  Rcpp::Environment environ_ = readEnvironmentFromSharedMemory(env);
+  copyToGlobalEnvironment_(environ_);
 
   
   SEXP ret = func();
