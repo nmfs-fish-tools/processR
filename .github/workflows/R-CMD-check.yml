@@ -1,0 +1,76 @@
+# Run r cmd check
+# on specifies the build triggers. See more info at https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows
+on:
+  workflow_dispatch:
+# The default build trigger is to run the action on every push and pull request, for any branch
+  push:
+  # To run the default repository branch weekly on sunday, uncomment the following 2 lines
+  #schedule:
+    #- cron: '0 0 * * 0'
+name: R-CMD-check
+
+jobs:
+  R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: macos-latest,   r: 'release'}
+
+          - {os: windows-latest, r: 'release'}
+          
+          - {os: ubuntu-latest,   r: 'release'}
+          
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      # For install boost
+      - name: Install boost
+        if: runner.os == 'windows'
+        uses: MarkusJx/install-boost@v2.4.4
+        id: install-boost
+        with:
+            # REQUIRED: Specify the required boost version
+            # A list of supported versions can be found here:
+            # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+            boost_version: 1.78.0
+            # OPTIONAL: Specify a custon install location
+            boost_install_dir: C:\
+            # OPTIONAL: Specify a platform version
+            platform_version: 2019
+            # OPTIONAL: Specify a toolset
+            toolset: msvc
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - name: git config
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
+        run: |
+          git config --global user.name "$GITHUB_ACTOR"
+          git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - uses: r-lib/actions/check-r-package@v2
+        env:
+          _R_CALLS_INVALID_NUMERIC_VERSION_: true
+        with:
+          upload-snapshots: true
+          error-on: '"error"'
