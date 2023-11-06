@@ -1,3 +1,3 @@
 CXX_STD = CXX17
-PKG_CXXFLAGS = -w -DBOOST_ALL_NO_LIB
+PKG_CXXFLAGS = -w -DBOOST_ALL_NO_LIB 
 PKG_LIBS= -lws2_32 -lboost_filesystem -lboost_system
