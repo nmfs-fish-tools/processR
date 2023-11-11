@@ -1,3 +1,5 @@
+library(methods)
+
 loadModule(module = "processR", TRUE)
 
 CreateProcessPool<-function(size = processR::HardwareConcurrency()){
@@ -9,3 +11,5 @@ CreateProcessPool<-function(size = processR::HardwareConcurrency()){
   }
   return(pool)
 }
+
+

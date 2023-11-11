@@ -8,7 +8,7 @@ License: GPL (>= 2)
 URL: https://github.com/nmfs-fish-tools/processR
 BugReports: https://github.com/nmfs-fish-tools/processR/issues
 Depends: R (>= 4.0.0)
-Imports: BH, methods, Rcpp (>= 1.0.10), RInside
+Imports: BH, methods, Rcpp (>= 1.0.10), RInside, methods
 LinkingTo: Rcpp, RInside, BH
 Encoding: UTF-8
 RoxygenNote: 7.2.3

@@ -97,7 +97,7 @@ public:
   SharedVector(const SharedVector& other) {
     this->vec_m->resize(other.size());
     for (size_t i = 0; i < this->vec_m->size(); i++) {
-      this->vec_m->at(i) = other[i];
+      this->vec_m->at(i) = other.vec_m->at(i);
     }
   }
   
@@ -107,7 +107,7 @@ public:
   SharedVector(const std::vector<double>& other) {
     this->vec_m->resize(other.size());
     for (size_t i = 0; i < this->vec_m->size(); i++) {
-      this->vec_m->at(i) = other[i];
+      this->vec_m->at(i) = other.at(i);
     }
   }
   

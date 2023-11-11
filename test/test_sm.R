@@ -2,6 +2,9 @@ library(processR)
 library(Rcpp)
 library(RInside)
 
+
+
+
 parent <- FALSE
 child <- FALSE
 rank_ <- 0
@@ -49,6 +52,8 @@ if (parent == TRUE) {
   SMV<- new(processR::SharedVector)
   SMV$create(sm_name)
   SMV$resize(10)
+   SMV[0]<-1111000.0
+  cat(SMV[0])
   
   cat("\ninitial values:\n")
   for(i in 0:(SMV$size()-1)){
