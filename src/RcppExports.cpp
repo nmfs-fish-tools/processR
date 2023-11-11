@@ -43,6 +43,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// CreateSharedEnvironment
+SEXP CreateSharedEnvironment(const std::string& name);
+RcppExport SEXP _processR_CreateSharedEnvironment(SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(CreateSharedEnvironment(name));
+    return rcpp_result_gen;
+END_RCPP
+}
+// CreateSharedEnvironmentNoReturn
+void CreateSharedEnvironmentNoReturn(const std::string& name);
+RcppExport SEXP _processR_CreateSharedEnvironmentNoReturn(SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    CreateSharedEnvironmentNoReturn(name);
+    return R_NilValue;
+END_RCPP
+}
+// readSharedEnvironment
+SEXP readSharedEnvironment(const std::string& name);
+RcppExport SEXP _processR_readSharedEnvironment(SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(readSharedEnvironment(name));
+    return rcpp_result_gen;
+END_RCPP
+}
 // RunProcess
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env);
 RcppExport SEXP _processR_RunProcess(SEXP funSEXP, SEXP envSEXP) {
@@ -105,6 +137,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_processR_copyEnvironment", (DL_FUNC) &_processR_copyEnvironment, 1},
     {"_processR_writeToSharedMemory", (DL_FUNC) &_processR_writeToSharedMemory, 2},
     {"_processR_readEnvironmentFromSharedMemory", (DL_FUNC) &_processR_readEnvironmentFromSharedMemory, 1},
+    {"_processR_CreateSharedEnvironment", (DL_FUNC) &_processR_CreateSharedEnvironment, 1},
+    {"_processR_CreateSharedEnvironmentNoReturn", (DL_FUNC) &_processR_CreateSharedEnvironmentNoReturn, 1},
+    {"_processR_readSharedEnvironment", (DL_FUNC) &_processR_readSharedEnvironment, 1},
     {"_processR_RunProcess", (DL_FUNC) &_processR_RunProcess, 2},
     {"_processR_RunChild", (DL_FUNC) &_processR_RunChild, 2},
     {"_processR_CallRProcess", (DL_FUNC) &_processR_CallRProcess, 2},

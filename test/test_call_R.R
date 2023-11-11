@@ -10,6 +10,8 @@ rnorm_wrapper<-function(){
   return(ret)
 }
 
+my_env<-processR::CreateSharedEnvironment()
+my_env[["my_list"]]<-list()
 # env__ret = processR::CallRProcess(rnorm_wrapper, environment())
 # cat(env__ret[["processR.return"]])
 

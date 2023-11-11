@@ -1,7 +1,13 @@
 #include <filesystem>
 #include <fstream>
 #include <thread>
+
+#include "../inst/include/ProcessR.hpp"
+
 #include <Rcpp.h>
+#include <Rinternals.h>
+
+
 #include <sstream>
 #include <chrono>
 #include <boost/process.hpp>
@@ -523,7 +529,7 @@ public:
 //   Process p;
 //   return p;
 // }
-
+// 
 // template<typename CLASS>
 // class SharedStorage{
 //   
@@ -532,16 +538,42 @@ public:
 //   SharedStorage() : data(R_NilValue), token(R_NilValue){}
 //   
 //   ~SharedStorage(){
-//     Rcpp_PreciousRelease(token) ;
-//     data = R_NilValue;
-//     token = R_NilValue;
+//     // Rcpp::Rcpp_PreciousRelease(token) ;
+//     // data = R_NilValue;
+//     // token = R_NilValue;
+//     SEXP res = Rf_allocSExp(ENVSXP);
+//     this->set__(res);
 //   }
 //   
 //   inline void set__(SEXP x){
 //     if (data != x) {
-//       data = x;
-//       Rcpp_PreciousRelease(token);
-//       token = Rcpp_PreciousPreserve(data);
+//       try {
+//         std::string shared_memory_name = "RSharedStorage";
+//         boost::interprocess::shared_memory_object::remove(shared_memory_name.c_str());
+//         // Create or open the shared memory segment
+//         boost::interprocess::shared_memory_object shm(
+//             boost::interprocess::open_or_create, shared_memory_name.c_str(), boost::interprocess::read_write
+//         );
+//         
+//         // Set the size of the shared memory segment
+//         shm.truncate(1024);
+//         
+//         // Map the shared memory segment into this process's address space
+//         boost::interprocess::mapped_region region(shm, boost::interprocess::read_write);
+//         
+//         // Get a pointer to the shared memory
+//         unsigned char* shared_memory_ptr = static_cast<unsigned char*> (region.get_address());
+//         data = static_cast<SEXP> (region.get_address());
+//         unsigned char* X = (unsigned char*)x;
+//         memcpy(&X[0], shared_memory_ptr, sizeof(X) * sizeof (unsigned char));        
+//       
+//         Rcpp::Rcpp_PreciousRelease(token);
+//         token = Rcpp::Rcpp_PreciousPreserve(data);
+//       
+//       }catch(...){
+//         Rcpp::Rcout <<"Error creating shared storage. "<<std::endl;
+//       }
+// 
 //     }
 //     
 //     // calls the update method of CLASS
@@ -555,7 +587,7 @@ public:
 //   
 //   inline SEXP invalidate__(){
 //     SEXP out = data ;
-//     Rcpp_PreciousRelease(token);
+//     Rcpp::Rcpp_PreciousRelease(token);
 //     data = R_NilValue ;
 //     token = R_NilValue ;
 //     return out ;
@@ -583,7 +615,136 @@ public:
 //   
 //   
 // };
+// 
+ // [[Rcpp::export]]
+SEXP CreateSharedEnvironment(const std::string& name){
+  // std::string name = "RSharedPtr";
+  //SEXP res = Rf_allocSExp(ENVSXP);
+  Rcpp::Environment test_env = Rcpp::Environment::base_env();
+  SEXP res = Rcpp::wrap(test_env);
+  boost::interprocess::shared_memory_object::remove(name.c_str());
 
+  SEXP shared_symbol;
+  PROTECT(shared_symbol = Rf_install("my_shared_env"));
+
+  SEXP shared_env;
+  PROTECT(shared_env = R_MakeExternalPtr(res, shared_symbol, R_NilValue));
+
+  const char* segmentName = name.c_str(); // Replace with a suitable name
+  std::size_t segmentSize = sizeof (SEXP); // Size of the shared environment
+
+
+  boost::interprocess::shared_memory_object shm(boost::interprocess::open_or_create, segmentName, boost::interprocess::read_write);
+  shm.truncate(1024);
+
+  // Map the shared memory segment
+  boost::interprocess::mapped_region region(shm, boost::interprocess::read_write);
+  std::memset(region.get_address(), 0, region.get_size());
+
+  // Get a pointer to the memory in the mapped region
+  SEXP* sharedMemoryPointer = static_cast<SEXP*> (region.get_address());
+
+  // Copy the shared environment to shared memory
+  *sharedMemoryPointer = shared_env;
+
+  UNPROTECT(2);
+  Rcpp::Rcout<<"Address from write "<<region.get_address()<<std::endl;
+  return static_cast<SEXP>(R_ExternalPtrAddr(*sharedMemoryPointer));
+}
+
+// [[Rcpp::export]]
+void CreateSharedEnvironmentNoReturn(const std::string& name){
+  // std::string name = "RSharedPtr";
+  SEXP res = Rf_allocSExp(ENVSXP);
+  size_t size_env = sizeof(res);
+  boost::interprocess::shared_memory_object::remove(name.c_str());
+  
+  SEXP shared_symbol;
+  PROTECT(shared_symbol = Rf_install("my_shared_env"));
+  
+  SEXP shared_env;
+  PROTECT(shared_env = R_MakeExternalPtr(res, shared_symbol, R_NilValue));
+  
+  const char* segmentName = name.c_str(); // Replace with a suitable name
+  std::size_t segmentSize = sizeof (SEXP); // Size of the shared environment
+  
+  
+  boost::interprocess::shared_memory_object shm(boost::interprocess::open_or_create, segmentName, boost::interprocess::read_write);
+  shm.truncate(size_env);
+  
+  // Map the shared memory segment
+  boost::interprocess::mapped_region region(shm, boost::interprocess::read_write);
+  
+  // Get a pointer to the memory in the mapped region
+  SEXP* sharedMemoryPointer = static_cast<SEXP*> (region.get_address());
+  
+  // Copy the shared environment to shared memory
+  *sharedMemoryPointer = shared_env;
+  
+  UNPROTECT(2);
+  // return static_cast<SEXP>(R_ExternalPtrAddr(*sharedMemoryPointer));
+}
+
+
+// [[Rcpp::export]]
+SEXP readSharedEnvironment(const std::string& name){
+  Rcpp::Rcout<<"Line 685"<<std::endl;
+  // Open the shared memory segment
+  boost::interprocess::shared_memory_object shm(
+      boost::interprocess::open_only, name.c_str(), boost::interprocess::read_write
+  );
+    
+    Rcpp::Rcout<<"Line 691"<<std::endl;
+  // Map the shared memory segment into this process's address space
+  boost::interprocess::mapped_region region(shm, boost::interprocess::read_write);
+  Rcpp::Rcout<<"Address from read "<<region.get_address()<<std::endl;
+  Rcpp::Rcout<<"Line 695"<<std::endl;
+  // Get a pointer to the shared memory
+  const void* shared_memory_ptr = region.get_address();
+
+  Rcpp::Rcout<<"Line 699"<<std::endl;
+  SEXP sharedMemoryPointer = static_cast<SEXP> (region.get_address());
+  // Rcpp::Rcout<<"Line 701"<<std::endl;
+   SEXP env = static_cast<SEXP>(R_ExternalPtrAddr((sharedMemoryPointer)));
+  Rcpp::Rcout<<"Line 703"<<std::endl;
+  return Rcpp::Environment(env);
+}
+
+class SharedEnvironment{
+  std::string name_m;
+  bool exists = false;
+  Rcpp::Environment env;
+public: 
+  
+  SharedEnvironment(){}
+  
+  SharedEnvironment(const std::string& name){
+    this->name_m = name;
+    this->env = readSharedEnvironment(name);
+  }
+  
+  void create(const std::string& name){
+    this->name_m = name;
+    this->env = CreateSharedEnvironment(name);
+  }
+  
+  void load(const std::string& name){
+    this->name_m = name;
+    this->env = readSharedEnvironment(name);
+  }
+  
+  operator Rcpp::Environment(){
+    return this->env;
+  }
+  
+  Rcpp::Environment get(){
+    return this->env;
+  }
+  
+  std::string name(){
+    return this->name_m;
+  }
+};
 
 // [[Rcpp::export]]
 void RunProcess(Rcpp::Function fun, Rcpp::Environment env) {
@@ -761,7 +922,17 @@ RCPP_EXPOSED_CLASS(Process)
     .method("write", &Process::write, "Write to the process in stream.")
     .field("write_log", &Process::write_log, "Write to the process in stream to log.")
     .field("rank", &Process::rank, "The user assigned rank.");
-  }
+    Rcpp::class_<SharedVector>("SharedVector")
+      .constructor()
+      .constructor<size_t, double>()
+      .method("create", &SharedVector::create, "create shared memory.")
+      .method("open", &SharedVector::open, "open shared memory.")
+      .method("set", &SharedVector::set, "set an element at position pos.")
+      .method("get", &SharedVector::get, "access value at index i")
+      .method("resize", &SharedVector::resize, "resize the vector")
+      .method("size", &SharedVector::size, "returns the size of the vector");
+    
+     }
 
 // // [[Rcpp::export]]
 // Process CreateProcess(){

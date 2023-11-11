@@ -13,6 +13,18 @@ readEnvironmentFromSharedMemory <- function(shared_memory_name) {
     .Call(`_processR_readEnvironmentFromSharedMemory`, shared_memory_name)
 }
 
+CreateSharedEnvironment <- function(name) {
+    .Call(`_processR_CreateSharedEnvironment`, name)
+}
+
+CreateSharedEnvironmentNoReturn <- function(name) {
+    invisible(.Call(`_processR_CreateSharedEnvironmentNoReturn`, name))
+}
+
+readSharedEnvironment <- function(name) {
+    .Call(`_processR_readSharedEnvironment`, name)
+}
+
 RunProcess <- function(fun, env) {
     invisible(.Call(`_processR_RunProcess`, fun, env))
 }
