@@ -44,59 +44,61 @@ for (i in 1:length(args)) {
   
 }
 
-if(child == TRUE){
-  cat("rank_ = ")
-  cat(rank_)
-  cat("\n")
-}
-
-
-
 if (parent == TRUE) {
   
   SMV<- new(processR::SharedVector)
   SMV$create(sm_name)
   SMV$resize(10)
   
+  cat("\ninitial values:\n")
   for(i in 0:(SMV$size()-1)){
     SMV$set(i,3.1459)
-    print(SMV$get(i))
+    cat(SMV$get(i))
+    cat(" ")
   }
- 
+  cat("\n")
+
   process <-
     new(processR::Process,
-        "Rscript test_sm.R -child -rank 1 -sm MyVector")
-  process$wait()
-  cat("child message:\n")
-  cat(process$get_message())
+        "Rscript test_sm.R -child -rank 1")
   
-  print("parent:")
+  process2 <-
+    new(processR::Process,
+        "Rscript test_sm.R -child -rank 2")
+  
+  process$wait()
+  process2$wait()
+  
+  cat("\nchild messages:\n\n")
+  cat(process$get_message())
+  cat("\n")
+  cat(process2$get_message())
+  
+  cat("\nparent after concurrent modification:\n")
   for(i in 0:(SMV$size()-1)){
-    print(SMV$get(i))
+    cat(SMV$get(i))
+    cat(" ")
   }
+  cat("\n")
+  
+  SMV$destroy(sm_name)
   
 } else{
   
   SMV<- new(processR::SharedVector)
   SMV$open(sm_name)
+  
   for(i in begin[rank_]:(end[rank_]-1)){
-    SMV$set(i, SMV$get(i)*2)
+    SMV$set(i, SMV$get(i)*(rank_*2))
+    cat(SMV$get(i))
+    cat(" ")
   }
+  cat("\n")
   
-  
-  test <- function() {
-   
-    print("child:")
-    for(i in 0:(SMV$size()-1)){
-      print(SMV$get(i))
-    }
-    
-  }
-  
-  test()
   
 }
 if(parent == TRUE){
+  
 q()
 }
 # .GlobalEnv<-processR::CreateSharedEnvironment("global")
