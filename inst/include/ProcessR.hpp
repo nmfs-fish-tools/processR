@@ -95,6 +95,11 @@ public:
    * @brief Copy constructor.
    */
   SharedVector(const SharedVector& other) {
+    std::stringstream ss;
+    
+    std::time_t t = std::time(0);
+    ss<<"REALSMVector_"<<t;
+    this->init(ss.str().c_str());
     this->vec_m->resize(other.size());
     for (size_t i = 0; i < this->vec_m->size(); i++) {
       this->vec_m->at(i) = other.vec_m->at(i);
@@ -105,6 +110,11 @@ public:
    * @brief Initialization constructor with std::vector type..
    */
   SharedVector(const std::vector<double>& other) {
+    std::stringstream ss;
+    
+    std::time_t t = std::time(0);
+    ss<<"REALSMVector_"<<t;
+    this->init(ss.str().c_str());
     this->vec_m->resize(other.size());
     for (size_t i = 0; i < this->vec_m->size(); i++) {
       this->vec_m->at(i) = other.at(i);

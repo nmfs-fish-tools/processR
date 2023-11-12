@@ -10,10 +10,10 @@ setMethod("[", c(x = "Rcpp_SharedVector", i = "numeric"),
             return(x$get(i))
           })
 
-setMethod("[<-", c(x = "Rcpp_SharedVector", i = "numeric", y = "numeric"),
-          function(x, i, y) {
-            (x$set(i,y))
-          })
+# setMethod("[<-", c(x = "Rcpp_SharedVector", i = "numeric", y = "numeric"),
+#           function(x, i, y) {
+#             (x$set(i,y))
+#           })
 
 
           
