@@ -1,14 +1,17 @@
 #ifndef PROCESSR_HPP
 #define PROCESSR_HPP
 
+#include <iterator>
+#include <sstream>
+#include <chrono>
+#include <vector>
+
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/streams/vectorstream.hpp>
-#include <iterator>
-#include <sstream>
-#include <chrono>
+
 
 using namespace boost::interprocess;
 
@@ -88,6 +91,11 @@ public:
    * @brief Constructs the container of size copies of elements with value value.
    */
   SharedVector(size_t size, const double& value = double()) {
+    std::stringstream ss;
+    
+    std::time_t t = std::time(0);
+    ss<<"REALSMVector_"<<t;
+    this->init(ss.str().c_str());
     this->vec_m->resize(size, value);
   }
   
