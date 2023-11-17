@@ -47,7 +47,6 @@ class SharedVector : public SharedRObject {
     
   
     this->name = name;
-    Rcpp::Rcout <<"Setting name to "<<this->name<<"\n";
     shared_memory_object::remove(name.c_str());
     
     //Create a new segment with given name and size
@@ -58,11 +57,7 @@ class SharedVector : public SharedRObject {
     
     //Construct a vector named "MyVector" in shared memory with argument alloc_inst
     this->vec_m = segment.construct<REALSMVector>("REALSMVector")(alloc_inst);
-      // struct sm_tuple t;
-      // t.initialized = true;
-      // t.object = (void*) this->vec_m;
-      // t.sm_name = name;
-      // t.sm_type = SMVECTOR:
+   
       
   }
   
@@ -226,6 +221,7 @@ public:
   /**
    * @brief Returns a constant pointer to the underlying data array.
    */
+  
   const_pointer data() const {
     return this->vec_m->data();
   }

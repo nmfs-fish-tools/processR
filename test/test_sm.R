@@ -76,6 +76,7 @@ if (parent == TRUE) {#parent process
   pi<- 3.1549
   print(typeof(pi))
   SML2$set("PI",3.1549)
+  print(SML2$get("PI"))
   q()
   # SML2$set("double", 3,1459)
   # PI_ <-SML$get("double")

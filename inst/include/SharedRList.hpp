@@ -113,8 +113,7 @@ public:
         this->tlist_m = segment.find<MyTupleMap>("MyTupleMap").first;
 
         typename MyTupleMap::iterator it;
-        int ii = 0;
-        Rcpp::Rcout << this->tlist_m->size() << std::flush;
+
         for (it = tlist_m->begin(); it != tlist_m->end(); ++it) {
             SMTYPE sm_type = (*it).second.type;
             //  

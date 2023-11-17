@@ -53,6 +53,11 @@ public:
 
     bool is_SharedRObject(SEXP s) {
         try {
+            
+            if(this->is_Numeric(s)){
+                return true;
+            }
+            
             if (TYPEOF(s) != S4SXP) {
                 ::Rf_error("supplied object not from SharedR Library.");
                 return false;
@@ -74,8 +79,6 @@ public:
 
     bool is_Numeric(SEXP s) {
         //REALSXP
-
-        Rcpp::Rcout << TYPEOF(s) << "----" << REALSXP << std::endl;
         if (TYPEOF(s) == REALSXP) {
             return true;
         }
@@ -85,17 +88,14 @@ public:
     SMTYPE getSharedRObjectType(SEXP s) {
 
         if (this->is_Numeric(s)) {
-            Rcpp::Rcout << "yo, is numeric!" << std::endl;
             return SMTYPE::SMNUMERIC;
-        } else {
-            Rcpp::Rcout << "yo, not numeric!" << std::endl;
-        }
+        } 
 
 
         try {
 
 
-            if (TYPEOF(s) != S4SXP && !is_Numeric(s)) {
+            if (TYPEOF(s) != S4SXP ) {
                 Rcpp::Rcout << __LINE__ << std::endl;
                 std::stringstream ss;
                 ss << TYPEOF(s) << " supplied object not from SharedR Library.";
@@ -112,10 +112,7 @@ public:
             }
 
         } catch (...) {
-//            std::stringstream ss;
-//            Rcpp::Rcout << __LINE__ << std::endl;
-//            ss << TYPEOF(s) << " supplied object not from SharedR Library.";
-//            ::Rf_error(ss.str().c_str());
+            ::Rf_error(" supplied object not from SharedR Library.");
         }
 
         return SMTYPE::UNKNOWN;
@@ -136,13 +133,11 @@ namespace Rcpp {
     template <> SharedRObject as(SEXP s) {
         try {
             if (TYPEOF(s) != S4SXP) {
-                Rcpp::Rcout << __LINE__ << std::endl;
                 ::Rf_error("supplied object is not of type SharedRObject.");
             }
 
             Rcpp::S4 s4obj(s);
             if (!s4obj.is("Rcpp_SharedRObject")) {
-                Rcpp::Rcout << __LINE__ << std::endl;
                 ::Rf_error("supplied object is not of type SharedRObject.");
             }
 
@@ -153,7 +148,6 @@ namespace Rcpp {
 
             return SharedRObject((* xptr.get()));
         } catch (...) {
-            Rcpp::Rcout << __LINE__ << std::endl;
             ::Rf_error("supplied object could not be converted to SharedRObject.");
         }
     }
