@@ -1,6 +1,9 @@
 #ifndef SHAREDRLIST_HPP
 #define SHAREDRLIST_HPP
 
+#include <map>
+
+
 #include "SharedRObject.hpp"
 #include "SharedRVector.hpp"
 class SharedList;
