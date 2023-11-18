@@ -195,6 +195,9 @@ public:
         //        //    return static_cast<SEXP> (R_ExternalPtrAddr((*this->tlist_m)[key].data));
     }
 
+    size_t size() {
+        return this->tlist_m->size();
+    }
 
 };
 

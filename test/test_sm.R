@@ -148,7 +148,7 @@ if (parent == TRUE) {#parent process
   print("still child")
   #modify segment of the shared vector
   for (i in begin[rank_]:(end[rank_] - 1)) {
-    SMV$set(i, SMV$get(i)*(2*rank_))
+    SMV$set(i, SML$get("PI")*(2*rank_))
     cat(SMV$get(i))
     cat(" ")
   }
