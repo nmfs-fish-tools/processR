@@ -67,23 +67,23 @@ if (parent == TRUE) {#parent process
   
   SML <- new(processR::SharedList)
   SML$create("SML")
-  # SML$set(sm_name, SMV)
+  SML$set(sm_name, SMV)
 
   
-  SML2 <- new(processR::SharedList)
-  SML2$open("SML")
+  # SML2 <- new(processR::SharedList)
+  # SML2$open("SML")
   # SMV2<-SML2$get(sm_name)
-  pi<- 3.1549
-  print(typeof(pi))
-  SML2$set("PI",3.1549)
-  print(SML2$get("PI"))
-  q()
+  # pi<- 3.1549
+  # print(typeof(pi))
+  # SML2$set("PI",3.1549)
+  # print(SML2$get("PI"))
+  # q()
   # SML2$set("double", 3,1459)
   # PI_ <-SML$get("double")
   # print(PI_)
-  print(SMV2$size())
-  print(typeof(SMV2))
- print(SMV2$size())
+  # print(SMV2$size())
+  # print(typeof(SMV2))
+ # print(SMV2$size())
  
 
   
@@ -139,10 +139,11 @@ if (parent == TRUE) {#parent process
   # 
   SML <- new(processR::SharedList)
   SML$open("SML")
-  
+
   SMV<-SML$get(sm_name)
+  SML$set("PI",3.1549)
   # print(SMV2$size())
-  # show(SMV)
+  show(SMV)
   
   print("still child")
   #modify segment of the shared vector

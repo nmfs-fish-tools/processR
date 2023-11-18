@@ -159,7 +159,7 @@ public:
             } else if (type == SMTYPE::SMNUMERIC) {
 
                 t.sm_name = "na";
-                t.type = SMTYPE::SMLIST;
+                t.type = SMTYPE::SMNUMERIC;
                 t.data = object;
                 t.value = Rcpp::as<double>(object);
                 (*this->tlist_m)[key] = t;
