@@ -3,6 +3,7 @@
 
 #include <map>
 
+#include <boost/interprocess/containers/map.hpp>
 
 #include "SharedRObject.hpp"
 #include "SharedRVector.hpp"
@@ -51,6 +52,9 @@ class SharedList : public SharedRObject {
     //    bip::managed_shared_memory segment;
     //    MySHMMap* list_m;
 
+    typedef bip::allocator<char,  bip::managed_shared_memory::segment_manager> CharAllocator;
+    typedef std::basic_string<char, std::char_traits<char>, CharAllocator> ShmemString;
+
     typedef std::string KeyType2;
     typedef tuple MappedType2;
     typedef std::pair<const std::string, tuple> ValueType2;
@@ -58,14 +62,10 @@ class SharedList : public SharedRObject {
     typedef boost::interprocess::allocator<ValueType2, bip::managed_shared_memory::segment_manager> ShmemAllocator3;
 
 
-    typedef std::map<KeyType2, MappedType2, std::less<KeyType2>, ShmemAllocator3> MyTupleMap;
+    typedef bip::map<KeyType2, MappedType2, std::less<KeyType2>, ShmemAllocator3> MyTupleMap;
 
     bip::managed_shared_memory segment;
     MyTupleMap* tlist_m;
-    
-    
-    
-    
 
     void init(const std::string name) {
         this->name = name;
