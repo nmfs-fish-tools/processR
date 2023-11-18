@@ -1,7 +1,7 @@
 #ifndef SHAREDRLIST_HPP
 #define SHAREDRLIST_HPP
 
-#include <unordered_map>
+#include <map>
 
 
 #include "SharedRObject.hpp"
@@ -58,7 +58,7 @@ class SharedList : public SharedRObject {
     typedef boost::interprocess::allocator<ValueType2, bip::managed_shared_memory::segment_manager> ShmemAllocator3;
 
 
-    typedef std::unordered_map<KeyType2, MappedType2, std::less<KeyType2>, ShmemAllocator3> MyTupleMap;
+    typedef std::map<KeyType2, MappedType2, std::less<KeyType2>, ShmemAllocator3> MyTupleMap;
 
     bip::managed_shared_memory segment;
     MyTupleMap* tlist_m;
@@ -78,7 +78,7 @@ class SharedList : public SharedRObject {
         const ShmemAllocator3 alloc_inst(segment.get_segment_manager());
 
         //Construct a vector named "MyVector" in shared memory with argument alloc_inst
-        this->tlist_m = segment.construct<MyTupleMap>("MyTupleMap")(alloc_inst);
+        this->tlist_m = segment.construct<MyTupleMap>("MyTupleMap")(std::less<KeyType2>(), alloc_inst);
         std::map<std::string, std::shared_ptr<SharedRObject> > local_map;
     }
 
@@ -179,7 +179,7 @@ public:
 
     }
 
-    SEXP get(const std::string & key) {
+    SEXP get(const std::string& key) {
 
 
         if ((*this->tlist_m)[key].type == SMTYPE::SMNUMERIC) {
