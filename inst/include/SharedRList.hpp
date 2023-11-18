@@ -55,10 +55,14 @@ class SharedList : public SharedRObject {
     typedef boost::interprocess::allocator<ValueType2, bip::managed_shared_memory::segment_manager> ShmemAllocator3;
 
 
-    typedef std::map<std::string, tuple, std::less<KeyType2>, ShmemAllocator3> MyTupleMap;
+    typedef std::map<KeyType2, MappedType2, std::less<KeyType2>, ShmemAllocator3> MyTupleMap;
 
     bip::managed_shared_memory segment;
     MyTupleMap* tlist_m;
+    
+    
+    
+    
 
     void init(const std::string name) {
         this->name = name;
