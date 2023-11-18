@@ -124,11 +124,11 @@ public:
     }
   }
   
-  void create(const std::string& name) {
+  virtual void create(const std::string& name) {
     this->init(name);
   }
   
-  void open(const std::string& name) {
+  virtual void open(const std::string& name) {
     //Open the managed segment
       this->name = name;
     this->segment = managed_shared_memory(open_only, name.c_str());
@@ -137,7 +137,7 @@ public:
     this->vec_m = segment.find<REALSMVector>("REALSMVector").first;
   }
   
-  void destroy(const std::string& name) {
+  virtual void destroy(const std::string& name) {
     this->segment.destroy<REALSMVector>(name.c_str());
   }
   
@@ -478,6 +478,10 @@ bool operator==(const SharedVector& lhs,
 // 
 // 
 // }
+
+SharedVector sm_vector(){
+    return SharedVector();
+}
 
 SharedVector as_shared_vector(SEXP s){
   return Rcpp::as<SharedVector>(s);

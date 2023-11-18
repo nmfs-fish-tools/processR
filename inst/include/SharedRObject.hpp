@@ -51,13 +51,18 @@ public:
     SharedRObject() {
     }
 
+
+//    virtual void create(const std::string& name) = 0;
+//    virtual void open(const std::string& name) = 0;
+//    virtual void destroy(const std::string& name) = 0;
+
     bool is_SharedRObject(SEXP s) {
         try {
-            
-            if(this->is_Numeric(s)){
+
+            if (this->is_Numeric(s)) {
                 return true;
             }
-            
+
             if (TYPEOF(s) != S4SXP) {
                 ::Rf_error("supplied object not from SharedR Library.");
                 return false;
@@ -89,13 +94,13 @@ public:
 
         if (this->is_Numeric(s)) {
             return SMTYPE::SMNUMERIC;
-        } 
+        }
 
 
         try {
 
 
-            if (TYPEOF(s) != S4SXP ) {
+            if (TYPEOF(s) != S4SXP) {
                 Rcpp::Rcout << __LINE__ << std::endl;
                 std::stringstream ss;
                 ss << TYPEOF(s) << " supplied object not from SharedR Library.";
@@ -166,7 +171,14 @@ void SMInitialize(std::string system_name, bool open) {
     // processR_sm_declarations_g = segment_g.construct<SharedTupleVector>("SharedTupleVector")(alloc_inst);
 }
 
-
+/**
+ * Destroy shared memory.
+ * 
+ * @param name
+ */
+void destroy(const std::string& name) {
+    bip::shared_memory_object::remove(name.c_str());
+}
 
 
 #endif

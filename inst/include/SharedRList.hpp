@@ -4,7 +4,6 @@
 #include <map>
 
 #include <boost/interprocess/containers/map.hpp>
-
 #include "SharedRObject.hpp"
 #include "SharedRVector.hpp"
 class SharedList;
@@ -38,34 +37,16 @@ class SharedList : public SharedRObject {
     };
 
     std::vector<std::shared_ptr<SharedRObject> > stash;
-    //
-    //    typedef std::string KeyType;
-    //    typedef SEXP MappedType;
-    //    typedef std::pair<const std::string, SEXP> ValueType;
-    //
-    //    //allocator of for the map.
-    //    typedef boost::interprocess::allocator<ValueType, bip::managed_shared_memory::segment_manager> ShmemAllocator2;
-    //
-    //    //third parameter argument is the ordering function is used to compare the keys.
-    //    typedef std::map<KeyType, MappedType, std::less<KeyType>, ShmemAllocator2> MySHMMap;
-    //
-    //    bip::managed_shared_memory segment;
-    //    MySHMMap* list_m;
 
-    typedef bip::allocator<char,  bip::managed_shared_memory::segment_manager> CharAllocator;
-    typedef std::basic_string<char, std::char_traits<char>, CharAllocator> ShmemString;
+    typedef std::string KeyType;
+    typedef tuple MappedType;
+    typedef std::pair<const std::string, tuple> ValueType;
 
-    typedef std::string KeyType2;
-    typedef tuple MappedType2;
-    typedef std::pair<const std::string, tuple> ValueType2;
-
-    typedef boost::interprocess::allocator<ValueType2, bip::managed_shared_memory::segment_manager> ShmemAllocator3;
-
-
-    typedef bip::map<KeyType2, MappedType2, std::less<KeyType2>, ShmemAllocator3> MyTupleMap;
+    typedef bip::allocator<ValueType, bip::managed_shared_memory::segment_manager> ShmemAllocator3;
+    typedef bip::map<KeyType, MappedType, std::less<KeyType>, ShmemAllocator3> SMLIST;
 
     bip::managed_shared_memory segment;
-    MyTupleMap* tlist_m;
+    SMLIST* tlist_m;
 
     void init(const std::string name) {
         this->name = name;
@@ -78,7 +59,7 @@ class SharedList : public SharedRObject {
         const ShmemAllocator3 alloc_inst(segment.get_segment_manager());
 
         //Construct a vector named "MyVector" in shared memory with argument alloc_inst
-        this->tlist_m = segment.construct<MyTupleMap>("MyTupleMap")(std::less<KeyType2>(), alloc_inst);
+        this->tlist_m = segment.construct<SMLIST>("SMLIST")(std::less<KeyType>(), alloc_inst);
         std::map<std::string, std::shared_ptr<SharedRObject> > local_map;
     }
 
@@ -97,6 +78,22 @@ class SharedList : public SharedRObject {
     }
 
 public:
+
+    typedef typename SMLIST::key_type key_type;
+    typedef typename SMLIST::key_type mapped_type;
+    typedef typename SMLIST::value_type value_type;
+    typedef typename SMLIST::size_type size_type;
+    typedef typename SMLIST::difference_type difference_type;
+    typedef typename SMLIST::key_compare key_compare;
+    typedef typename SMLIST::allocator_type allocator_type;
+    typedef typename SMLIST::reference reference;
+    typedef typename SMLIST::const_reference const_reference;
+    typedef typename SMLIST::pointer pointer;
+    typedef typename SMLIST::const_pointer const_pointer;
+    typedef typename SMLIST::iterator iterator;
+    typedef typename SMLIST::const_iterator const_iterator;
+    typedef typename SMLIST::reverse_iterator reverse_iterator;
+    typedef typename SMLIST::node_type node_type;
 
     SharedList() {
     }
@@ -117,9 +114,9 @@ public:
         this->segment = bip::managed_shared_memory(bip::open_only, name.c_str());
 
         //Find the vector using the c-string name
-        this->tlist_m = segment.find<MyTupleMap>("MyTupleMap").first;
+        this->tlist_m = segment.find<SMLIST>("SMLIST").first;
 
-        typename MyTupleMap::iterator it;
+        typename SMLIST::iterator it;
 
         for (it = tlist_m->begin(); it != tlist_m->end(); ++it) {
             SMTYPE sm_type = (*it).second.type;
@@ -136,7 +133,7 @@ public:
     }
 
     void destroy(const std::string & name) {
-        this->segment.destroy<MyTupleMap>(name.c_str());
+        this->segment.destroy<SMLIST>(name.c_str());
     }
 
     void set(const std::string& key, SEXP object) {
@@ -246,8 +243,13 @@ namespace Rcpp {
 
 
 }
+
 RCPP_EXPOSED_CLASS(SharedList)
 
+
+SharedList sm_list() {
+    return SharedList();
+}
 
 
 #endif

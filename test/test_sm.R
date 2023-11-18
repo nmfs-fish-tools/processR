@@ -123,8 +123,9 @@ if (parent == TRUE) {#parent process
     cat(SMV$get(i))
     cat(" ")
   }
+  cat("\n\n")
+  cat(SML$get("PI"))
   cat("\n")
-  
   #destroy shared memory
   SMV$destroy(sm_name)
   

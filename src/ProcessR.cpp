@@ -945,7 +945,9 @@ RCPP_MODULE(processR) {
             .method("resize", &SharedVector::resize, "resize SharedVector.")
             .method("size", &SharedVector::size, "get the size of SharedVector.")
             .method("destroy", &SharedVector::destroy, "destroy SharedVector.");
-    Rcpp::function("as_shared_vector", &as_shared_vector);
+    Rcpp::function("sm_vector", &sm_vector);
+    Rcpp::function("sm_list", &sm_list);
+    Rcpp::function("destroy", &destroy);
 }
 
 // // [[Rcpp::export]]
