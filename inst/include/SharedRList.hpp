@@ -14,6 +14,9 @@ namespace Rcpp {
 
 }
 
+/**
+ * Named shared list in shared memory. 
+ */
 class SharedList : public SharedRObject {
 
     struct tuple {
@@ -36,6 +39,7 @@ class SharedList : public SharedRObject {
 
     };
 
+    //used during open only
     std::vector<std::shared_ptr<SharedRObject> > stash;
 
     typedef std::string KeyType;
@@ -93,6 +97,7 @@ public:
     typedef typename SMLIST::iterator iterator;
     typedef typename SMLIST::const_iterator const_iterator;
     typedef typename SMLIST::reverse_iterator reverse_iterator;
+    typedef typename SMLIST::const_reverse_iterator const_reverse_iterator;
     typedef typename SMLIST::node_type node_type;
 
     SharedList() {
@@ -136,7 +141,7 @@ public:
         this->segment.destroy<SMLIST>(name.c_str());
     }
 
-    void set(const std::string& key, SEXP object) {
+    void set(const key_type& key, SEXP object) {
 
         if (this->is_SharedRObject(object)) {
             SMTYPE type = this->getSharedRObjectType(object);
@@ -176,7 +181,7 @@ public:
 
     }
 
-    SEXP get(const std::string& key) {
+    SEXP get(const key_type& key) {
 
 
         if ((*this->tlist_m)[key].type == SMTYPE::SMNUMERIC) {
@@ -199,9 +204,138 @@ public:
         //        //    return static_cast<SEXP> (R_ExternalPtrAddr((*this->tlist_m)[key].data));
     }
 
-    size_t size() {
+
+    //Iterators:
+
+    inline iterator begin() {
+        return this->tlist_m->begin();
+    }
+
+    inline const_iterator begin() const {
+        return this->tlist_m->begin();
+    }
+
+    inline iterator end() {
+        return this->tlist_m->end();
+    }
+
+    inline const_iterator end() const {
+        return this->tlist_m->end();
+    }
+
+    inline reverse_iterator rbegin() {
+        return this->tlist_m->rbegin();
+    }
+
+    inline const_reverse_iterator rbegin() const {
+        return this->tlist_m->rbegin();
+    }
+
+    inline reverse_iterator rend() {
+        return this->tlist_m->rend();
+    }
+
+    inline const_reverse_iterator rend() const {
+        return this->tlist_m->rend();
+    }
+
+
+    //Capacity:
+
+    inline bool empty()const {
+        return this->tlist_m->empty();
+    }
+
+    inline size_type size() const {
         return this->tlist_m->size();
     }
+
+    inline size_type max_size() const {
+        return this->tlist_m->max_size();
+    }
+
+    //Element access:
+
+    inline SEXP operator[](const key_type& k) {
+        return this->get(k);
+    }
+
+    //Modifiers:
+
+    inline std::pair<iterator, bool> insert(const value_type& val) {
+        return this->tlist_m->insert(val);
+    }
+
+    inline iterator insert(iterator position, const value_type& val) {
+        return this->tlist_m->insert(position, val);
+    }
+
+    template <class InputIterator>
+    void insert(InputIterator first, InputIterator last) {
+        this->tlist_m->insert(first, last);
+    }
+
+    inline void erase(iterator position) {
+        this->tlist_m->erase(position);
+    }
+
+    inline size_type erase(const key_type& k) {
+        return this->tlist_m->erase(k);
+    }
+
+    inline void erase(iterator first, iterator last) {
+        this->tlist_m->erase(first, last);
+    }
+
+    inline void swap(SharedList& x) {
+        this->tlist_m->swap((*x.tlist_m));
+    }
+
+    inline void clear() {
+        this->tlist_m->clear();
+    }
+
+
+    //Operations:
+
+    inline iterator find(const key_type& k) {
+        return this->tlist_m->find(k);
+    }
+
+    inline const_iterator find(const key_type& k) const {
+        return this->tlist_m->find(k);
+    }
+
+    inline size_type count(const key_type& k) const {
+        return this->tlist_m->count(k);
+    }
+
+    inline iterator lower_bound(const key_type& k) {
+        return this->tlist_m->lower_bound(k);
+    }
+
+    inline const_iterator lower_bound(const key_type& k) const {
+        return this->tlist_m->lower_bound(k);
+    }
+
+    inline iterator upper_bound(const key_type& k) {
+        return this->tlist_m->upper_bound(k);
+    }
+
+    inline const_iterator upper_bound(const key_type& k) const {
+        return this->tlist_m->upper_bound(k);
+    }
+
+    inline std::pair<iterator, iterator> equal_range(const key_type& k) {
+        return this->tlist_m->equal_range(k);
+    }
+
+    inline std::pair<const_iterator, const_iterator> equal_range(const key_type& k) const {
+        return this->tlist_m->equal_range(k);
+    }
+
+
+    //Allocator:
 
 };
 
@@ -213,6 +347,7 @@ namespace Rcpp {
     template <> SEXP wrap<SharedList>(const SharedList& el) {
         Rcpp::Rcout << __LINE__ << std::endl;
         Rcpp::Language call("new", Symbol("SharedList"));
+
         return call.eval();
     }
 
@@ -236,6 +371,7 @@ namespace Rcpp {
 
             return SharedList((* xptr.get()));
         } catch (...) {
+
             Rcpp::Rcout << __LINE__ << std::endl;
             ::Rf_error("supplied object could not be converted to SharedList.");
         }
